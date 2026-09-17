@@ -1,0 +1,25 @@
+workload: agentic
+precision: int4
+controller: adaptive
+speculation:
+  enabled: true
+  acceptance_rate: 0.75
+memory:
+  HBM:
+    capacity_gb: 192
+    bandwidth_gbps: 3350
+  DRAM:
+    capacity_gb: 1024
+    bandwidth_gbps: 160
+  CXL:
+    capacity_gb: 2048
+    bandwidth_gbps: 64
+  NVMe:
+    capacity_gb: 20000
+    bandwidth_gbps: 12
+  QPU:
+    capacity_gb: 64
+    bandwidth_gbps: 2000
+experiment:
+  num_ops: 32
+  seeds: [7, 11, 42]
