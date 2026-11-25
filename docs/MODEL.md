@@ -93,3 +93,23 @@ One decode step, batch B, context T: compute time = B * (2 * matmul params + att
   0.003 to 0.02. The default workloads therefore model a compute-heavy regime (large-batch or prefill-like), not single-stream decode.
 
 Open: measured throughput (these are bounds from specifications), AMD and other accelerators, and prefill, where intensity is high and the conclusion may reverse.
+
+### Prefill (same calibration, H100 SXM, one sequence, whole prompt at once)
+
+Prefill becomes compute-bound at about 300 prompt tokens in bf16 and in fp8 (S* = 316 for Llama 3.1 8B, 300 for 70B); at 2048 tokens compute time is about 6.6-6.9
+times memory time. Weight-only int4 lowers S* to about 75-80 tokens (even more compute-bound). So the picture is split: **decode is memory-dominated, prefill is
+compute-dominated**, and H6's direction ("memory share grows as compute gets cheaper") has to be stated per phase. These are specification-based bounds, not measurements.
+
+## A real measurement on one machine (`experiments/measure_roofline.py`, `requirements-bench.txt`)
+
+Run on a laptop CPU (Intel Core i5-1035G1, 4 cores, 7.7 GB RAM, no GPU, numpy 2.5.5 / OpenBLAS, float32). Measured: about 13.7 GB/s memory bandwidth, about 222 GFLOPS float32 matmul,
+ridge about 16 FLOP/byte. The test family `Y = W @ X` (W 8192 x 8192, 256 MiB) from matrix-vector (B = 1) to matrix-matrix (B = 512) against the roofline prediction
+`max(flops/peak, bytes/bandwidth)`:
+
+* B = 1: measured/predicted 0.94. B >= 256: 0.97-1.08. The model is accurate at both ends.
+* B = 2 to 32: measured is **3.3-3.7 times slower than predicted** (time stays flat at about 65-74 ms while the model says about 20 ms), so in this regime the model is not predictive.
+  A plausible but **unverified** cause is that the BLAS matrix-matrix kernel repacks the large matrix W before multiplying, moving about 3 times the counted bytes.
+* The predicted balance batch is 33; the first measured batch reaching 50% of peak is 64. So the first-order roofline is optimistic by about 2x about where the crossover is.
+
+What this supports: the memory-bound / compute-bound classification at the extremes. What it does not support: a quantitative prediction in the middle, or anything about GPUs.
+Specification-based figures above should therefore be read as ideal bounds, with real kernels in the transition region likely slower than the model says.

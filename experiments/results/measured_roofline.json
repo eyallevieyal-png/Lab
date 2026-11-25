@@ -1,0 +1,103 @@
+{
+  "bandwidth_GBps": 13.672735935852108,
+  "cpu": "Intel64 Family 6 Model 126 Stepping 5, GenuineIntel",
+  "machine": "AMD64",
+  "measured_batch_at_half_peak": 64,
+  "numpy": "2.5.5",
+  "peak_gflops": 222.45619373401357,
+  "predicted_balance_batch": 32.80069475598111,
+  "python": "3.13.15",
+  "ridge": 16.270057052056256,
+  "rows": [
+    {
+      "achieved_gflops": 7.242758401344703,
+      "batch": 1,
+      "intensity_flop_per_byte": 0.4998779594825482,
+      "measured_s": 0.018531299894675612,
+      "memory_time_share": 1.0597040251338752,
+      "predicted_s": 0.019637693089350705,
+      "ratio": 0.9436597165644127
+    },
+    {
+      "achieved_gflops": 4.052975470794105,
+      "batch": 2,
+      "intensity_flop_per_byte": 0.9995119570522206,
+      "measured_s": 0.0662317001260817,
+      "memory_time_share": 0.29657227944338943,
+      "predicted_s": 0.019642486277803073,
+      "ratio": 3.371859304844042
+    },
+    {
+      "achieved_gflops": 7.937931918523919,
+      "batch": 4,
+      "intensity_flop_per_byte": 1.9980487804878049,
+      "measured_s": 0.06763359997421503,
+      "memory_time_share": 0.2905667103658546,
+      "predicted_s": 0.01965207265470781,
+      "ratio": 3.4415504747288255
+    },
+    {
+      "achieved_gflops": 16.604374845056586,
+      "batch": 8,
+      "intensity_flop_per_byte": 3.992202729044834,
+      "measured_s": 0.06466619996353984,
+      "memory_time_share": 0.3041967120320715,
+      "predicted_s": 0.01967124540851728,
+      "ratio": 3.287346511143651
+    },
+    {
+      "achieved_gflops": 30.83537799121408,
+      "batch": 16,
+      "intensity_flop_per_byte": 7.968871595330739,
+      "measured_s": 0.0696435000281781,
+      "memory_time_share": 0.28300689810479984,
+      "predicted_s": 0.01970959091613622,
+      "ratio": 3.533482776203185
+    },
+    {
+      "achieved_gflops": 58.36306733641608,
+      "batch": 32,
+      "intensity_flop_per_byte": 15.875968992248062,
+      "measured_s": 0.07359049981459975,
+      "memory_time_share": 0.2688700577006907,
+      "predicted_s": 0.019786281931374106,
+      "ratio": 3.7192687372917206
+    },
+    {
+      "achieved_gflops": 121.13547518457428,
+      "batch": 64,
+      "intensity_flop_per_byte": 31.50769230769231,
+      "measured_s": 0.07091180002316833,
+      "memory_time_share": 0.2811896462272172,
+      "predicted_s": 0.03861405001953244,
+      "ratio": 1.836424824313908
+    },
+    {
+      "achieved_gflops": 182.54143826396134,
+      "batch": 128,
+      "intensity_flop_per_byte": 62.06060606060606,
+      "measured_s": 0.09411489986814559,
+      "memory_time_share": 0.2151245769922354,
+      "predicted_s": 0.07722810003906488,
+      "ratio": 1.2186613398560722
+    },
+    {
+      "achieved_gflops": 206.3730996513058,
+      "batch": 256,
+      "intensity_flop_per_byte": 120.47058823529412,
+      "measured_s": 0.166493299882859,
+      "memory_time_share": 0.125290063680527,
+      "predicted_s": 0.15445620007812977,
+      "ratio": 1.0779321244381281
+    },
+    {
+      "achieved_gflops": 230.071639297518,
+      "batch": 512,
+      "intensity_flop_per_byte": 227.55555555555554,
+      "measured_s": 0.29868729994632304,
+      "memory_time_share": 0.07394694180997946,
+      "predicted_s": 0.30891240015625954,
+      "ratio": 0.9668996770451291
+    }
+  ]
+}

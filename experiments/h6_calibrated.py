@@ -47,6 +47,25 @@ def critical_batch(model, device, wbits, kvbits, fmt, context):
     return None if d <= 0 else w / d
 
 
+def prefill_ratio(model, device, wbits, kvbits, fmt, tokens):
+    """t_compute / t_memory for processing `tokens` prompt tokens of one sequence (causal attention, KV cache written once)."""
+    m = MODELS[model]
+    flops = tokens * 2 * matmul_params(m) + 2.0 * m["layers"] * m["heads"] * (m["hidden"] // m["heads"]) * tokens ** 2
+    nbytes = total_params(m) * wbits / 8 + tokens * kv_bytes_per_token(m, kvbits / 8)
+    return (flops / dense_peak(device, fmt)) / (nbytes / (DEVICES[device]["bandwidth_TBps"] * 1e12))
+
+
+def prefill_balance(model, device, wbits, kvbits, fmt):
+    """Smallest prompt length (tokens) at which prefill becomes compute-bound (ratio >= 1), by doubling then bisection."""
+    lo, hi = 1, 2
+    while prefill_ratio(model, device, wbits, kvbits, fmt, hi) < 1 and hi < 1 << 22:
+        lo, hi = hi, hi * 2
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        lo, hi = (mid, hi) if prefill_ratio(model, device, wbits, kvbits, fmt, mid) < 1 else (lo, mid)
+    return hi
+
+
 def max_batch_in_memory(model, device, wbits, kvbits, context):
     """Largest batch whose weights plus KV cache fit in one device's memory (None if even the weights do not fit)."""
     m = MODELS[model]
@@ -70,6 +89,16 @@ def main():
                     out["rows"].append({"device": dev, "model": model, "scenario": name, "context": ctx, "ratio_b1": tc / tm,
                                         "critical_batch": b, "max_batch_fits": mb, "verdict": reach})
                     print(f"{model:14} {name:46} {ctx:6d} {tc / tm:13.4f} {('never' if b is None else f'{b:,.0f}'):>14} {('none' if mb is None else f'{mb:,}'):>13}")
+    print()
+    print("PREFILL (one sequence, whole prompt at once), H100 SXM: ratio t_compute/t_memory by prompt length, and the prompt length where prefill becomes compute-bound")
+    print(f"{'model':14} {'scenario':46} " + " ".join(f"S={x:<6}" for x in (128, 512, 2048, 8192)) + "  S* (tokens)")
+    out["prefill"] = []
+    for model in MODELS:
+        for name, wb, kvb, fmt in SCENARIOS:
+            ratios = [prefill_ratio(model, "H100 SXM", wb, kvb, fmt, x) for x in (128, 512, 2048, 8192)]
+            sstar = prefill_balance(model, "H100 SXM", wb, kvb, fmt)
+            out["prefill"].append({"model": model, "scenario": name, "ratios_128_512_2048_8192": ratios, "balance_tokens": sstar})
+            print(f"{model:14} {name:46} " + " ".join(f"{r:8.3f}" for r in ratios) + f"  {sstar:,}")
     # H6 premise check: peak speed-up vs bytes shrink going from bf16 to fp8 (same device, weights and KV)
     d = "H100 SXM"
     speed = dense_peak(d, "fp8") / dense_peak(d, "bf16")

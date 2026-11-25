@@ -10,6 +10,74 @@
       "total": 8029995008
     }
   },
+  "prefill": [
+    {
+      "balance_tokens": 316,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        0.40548145298659666,
+        1.6276835511492254,
+        6.601438193765075,
+        27.7717526315171
+      ],
+      "scenario": "bf16 weights/KV, bf16 compute"
+    },
+    {
+      "balance_tokens": 316,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        0.40548145298659666,
+        1.6276835511492254,
+        6.601438193765075,
+        27.7717526315171
+      ],
+      "scenario": "fp8 weights/KV, fp8 compute"
+    },
+    {
+      "balance_tokens": 80,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        1.6168638848349806,
+        6.430458005824579,
+        25.164650074249632,
+        93.50719925798258
+      ],
+      "scenario": "int4 weights only, bf16 compute (dequantize)"
+    },
+    {
+      "balance_tokens": 300,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        0.42728492268786605,
+        1.713793033610226,
+        6.929295224853566,
+        28.88239363205732
+      ],
+      "scenario": "bf16 weights/KV, bf16 compute"
+    },
+    {
+      "balance_tokens": 300,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        0.42728492268786605,
+        1.713793033610226,
+        6.929295224853566,
+        28.88239363205732
+      ],
+      "scenario": "fp8 weights/KV, fp8 compute"
+    },
+    {
+      "balance_tokens": 75,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        1.707617388313291,
+        6.830835685232782,
+        27.32909832454352,
+        109.40237760280527
+      ],
+      "scenario": "int4 weights only, bf16 compute (dequantize)"
+    }
+  ],
   "rows": [
     {
       "context": 512,

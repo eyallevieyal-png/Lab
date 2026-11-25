@@ -26,3 +26,11 @@ def test_batch_one_decode_is_memory_bound_and_closed_form_matches_the_crossing(d
     if b is not None:
         tc2, tm2 = step(model, device, wb, kvb, fmt, b, 512)
         assert tc2 == pytest.approx(tm2, rel=1e-9)
+
+
+def test_prefill_ratio_increases_with_prompt_length_and_has_a_balance_point():
+    from experiments.h6_calibrated import prefill_balance, prefill_ratio
+    r = [prefill_ratio("Llama-3.1-8B", "H100 SXM", 16, 16, "bf16", s) for s in (16, 128, 1024, 8192)]
+    assert r == sorted(r) and r[0] < 1 < r[-1]
+    s_star = prefill_balance("Llama-3.1-8B", "H100 SXM", 16, 16, "bf16")
+    assert prefill_ratio("Llama-3.1-8B", "H100 SXM", 16, 16, "bf16", s_star) >= 1 > prefill_ratio("Llama-3.1-8B", "H100 SXM", 16, 16, "bf16", s_star - 1)
