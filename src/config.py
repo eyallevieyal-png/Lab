@@ -55,6 +55,12 @@ class SimulationConfig:
     seed: int = 7
     speculative_acceptance: float = 0.75
     speculative_enabled: bool = True
+    # prediction confidence is the probability of a correct prediction plus this offset (0 = perfectly calibrated,
+    # negative = overconfident predictor). It lets calibration be a studied variable instead of an assumption.
+    calibration_offset: float = 0.0
+    # compute and memory time overlap (roofline max) or add up
+    overlap_compute_memory: bool = False
+    compute_ms_per_unit: float = 0.18
     hardware: HardwareConfig = field(default_factory=HardwareConfig)
 
 

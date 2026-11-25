@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from typing import Dict, Iterable, List
 
@@ -15,14 +16,18 @@ class WorkloadSpec:
     sequence_length: int
 
     def operation_profile(self, i: int, seed: int = 0) -> Dict[str, float | str | bool | int]:
+        # A string seed gives a deterministic stream in every process (unlike hash(), which changes between runs).
+        rng = random.Random(f"{self.name}|{seed}|{i}")
+        size_jitter = 1.0 + (rng.random() - 0.5) * 0.3
+        compute_jitter = 1.0 + (rng.random() - 0.5) * 0.3
         j = (i + 1) * (seed + 1)
-        size_bytes = int(64 * 1024 * (1 + (i % 9) * 0.35) * (1.0 + self.memory_pressure))
-        arithmetic_intensity = max(0.1, self.base_compute * (1.0 + (j % 5) * 0.08))
+        size_bytes = int(64 * 1024 * 1024 * (1 + (i % 9) * 0.35) * (1.0 + self.memory_pressure) * size_jitter)
+        arithmetic_intensity = max(0.1, self.base_compute * (1.0 + (j % 5) * 0.08) * compute_jitter)
         tool_call = (i % max(2, int(10 * (1.0 - self.tool_ratio + 0.3))) == 0) if self.tool_ratio > 0 else False
         branching_factor = max(1, int(self.branching * (1 + (i % 4)))) if self.branching > 0 else 1
         needs_sync = (i % 4 == 0) or self.state_change_rate > 0.65
-        oracle_resource = ["HBM", "DRAM", "CXL", "NVMe", "QPU"][i % 5]
-        candidate = oracle_resource
+        # the tier where the operation's data currently lives. Running elsewhere means moving the data first.
+        home_resource = ["HBM", "DRAM", "CXL", "NVMe", "QPU"][i % 5]
         return {
             "operation_id": i,
             "operation_type": "inference" if not tool_call else "tool_call",
@@ -31,7 +36,7 @@ class WorkloadSpec:
             "branching_factor": branching_factor,
             "tool_call": tool_call,
             "needs_sync": needs_sync,
-            "oracle_resource": candidate,
+            "home_resource": home_resource,
             "workload_name": self.name,
         }
 
@@ -46,7 +51,7 @@ WORKLOAD_LIBRARY: Dict[str, WorkloadSpec] = {
 }
 
 
-def load_workload(name: str, num_ops: int | None = None) -> List[Dict[str, float | str | bool | int]]:
+def load_workload(name: str, num_ops: int | None = None, seed: int = 0) -> List[Dict[str, float | str | bool | int]]:
     workload = WORKLOAD_LIBRARY[name.lower()]
     count = num_ops if num_ops is not None else workload.sequence_length
-    return [workload.operation_profile(i, seed=hash(name) % 17) for i in range(count)]
+    return [workload.operation_profile(i, seed=seed) for i in range(count)]
