@@ -40,8 +40,31 @@ This simulator is a model, not hardware evidence. Every number it produces follo
 * The Oracle is the lower bound in every run; Adaptive and Confidence-Gated Adaptive are within one standard deviation of Reactive in mean end-to-end time
   (they rarely act, and are never harmful); Predictive is clearly worse (12-18% harmful placements); WSA is worse than Reactive.
 * So under these assumptions, prediction does not pay off against data-local placement unless it is gated, and gating makes it match Reactive, not beat it.
-* H6 probe: operand reads take 92-96% of compute + memory time in every precision and workload, and the share falls slightly with lower precision.
-  That is the opposite of an "inversion" and depends on the working-set scale above. It is not evidence against H6 in general.
+* H6 is analysed in the next section; the first probe (memory 92-96% of compute + memory time at the default scale) is one point of that sweep.
+
+## H6 sensitivity (`experiments/h6_sensitivity.py`, results in `experiments/results/h6_sensitivity.json`)
+
+For the data-local Reactive controller, memory share = M / (C/k + M) when compute is k times faster. The simulator matches this closed form exactly
+(max error 0) and is strictly increasing in k in every configuration, as proved in `formal/LabFormal/Orchestration.lean` (`memShare_strictMono`).
+The share reaches 50% at **k\* = C / M**, the compute speed-up needed for the "inversion". Measured k\* (fp16, int4; all workloads, 3 seeds):
+
+| working-set scale | HBM | DRAM | CXL | NVMe | QPU |
+|---|---|---|---|---|---|
+| 1/256 | 2.3 / 2.1 | 0.53 / 0.48 | 0.36 / 0.32 | 0.23 / 0.21 | 1.1 / 1.0 |
+| 1/16 | 2.3 / 2.1 | 0.51 / 0.47 | 0.34 / 0.31 | 0.20 / 0.20 | 1.1 / 1.0 |
+| 1 (default, 64 MiB-scale) | 1.3 / 1.6 | 0.12 / 0.20 | 0.07 / 0.12 | 0.02 / 0.04 | 0.33 / 0.51 |
+| 4 | 0.56 / 0.92 | 0.04 / 0.07 | 0.02 / 0.04 | 0.005 / 0.01 | 0.11 / 0.21 |
+
+(k\* < 1 means memory already dominates at k = 1.)
+
+* Only HBM (and the QPU at small sizes) is compute-dominated at baseline; DRAM, CXL and NVMe are memory-dominated at every size tested.
+  For HBM at the default scale, a 1.3-1.6x compute speed-up already flips it.
+* The precision catalog works against H6's premise: int4 shrinks memory bytes to 0.4 of fp16 but net compute only to about 0.89 (1.6 / 1.8),
+  so quantization raises k\* (HBM 1.3 -> 1.57) instead of lowering it. These multipliers are unvalidated first-version values
+  (4-bit weights would be 0.25 of the bytes), so this is a statement about the catalog, not about hardware.
+* In the additive model H6 is a mathematical fact (proved). The empirical content is where k\* lies, i.e. the ridge point, which is set
+  entirely by the working-set size, tier bandwidths and compute speeds. Those are assumptions here, so the simulator cannot confirm or refute H6 for real
+  inference; it can only show which parameter regimes would.
 
 ## Not validated
 

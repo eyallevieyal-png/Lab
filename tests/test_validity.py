@@ -80,3 +80,9 @@ def test_calibration_is_measured_and_can_be_broken():
         return sum(r.to_summary()["calibration_error"] for r in runs) / len(runs)
     assert ece(0.0) < 0.12
     assert ece(-0.3) > ece(0.0) + 0.15
+
+
+def test_size_scale_scales_memory_time_not_compute_time():
+    base, half = _run("reactive").records, _run("reactive", size_scale=0.5).records
+    assert sum(r["compute_time"] for r in base) == pytest.approx(sum(r["compute_time"] for r in half))
+    assert sum(r["memory_time"] for r in half) < sum(r["memory_time"] for r in base)

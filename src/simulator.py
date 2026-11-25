@@ -329,6 +329,7 @@ def simulate_run(config: SimulationConfig) -> SimulationRun:
 
     for op in workload_ops:
         op = dict(op)
+        op["size_bytes"] = max(1, int(op["size_bytes"] * config.size_scale))
         op["precision"] = config.precision
         components = {r: placement_components(op, r, state, hierarchy, config) for r in RESOURCES}
         cost_of = lambda r, c=components: c[r]["total"]  # noqa: E731
