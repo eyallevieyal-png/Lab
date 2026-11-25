@@ -70,3 +70,26 @@ The share reaches 50% at **k\* = C / M**, the compute speed-up needed for the "i
 
 Nothing here was compared with measurements. The old `results_summary.json` at the repository root and the old files in `experiments/results/`
 come from the first version; the files in `experiments/results/` were regenerated, `results_summary.json` was not.
+
+## H6 calibrated on public specifications (`calibration/`, `experiments/h6_calibrated.py`, `experiments/results/h6_calibrated.json`)
+
+Inputs read on 2026-11-25: NVIDIA's H100 page (H100 SXM: 3.35 TB/s, 80 GB; H100 NVL: 3.9 TB/s, 94 GB; tensor throughput rows are footnoted "with sparsity",
+so **dense = half of the printed figure is our derivation**) and the `config.json` files of Llama 3.1 8B and 70B (the computed parameter counts, 8.03B and 70.55B,
+follow from those architectures). AMD MI300X could not be read (page timed out twice) and is not used. Nothing here is a measurement: it is a first-order roofline
+calculation (no overlap effects, no kernel inefficiency, no communication, one device; 70B in bf16 does not fit one H100, so its rows are per-device idealisations).
+
+One decode step, batch B, context T: compute time = B * (2 * matmul params + attention FLOPs) / dense peak; memory time = (weights + B * T * KV bytes per token) / bandwidth.
+
+* **Batch 1 decode is memory-bound by a factor of about 50 to 300**: compute time is 0.3% to 2% of memory time for both models, every context length (512 to 32768),
+  every scenario and both devices.
+* **There is often no balance point at all.** The KV cache is read per sequence, so attention keeps the step memory-bound at any batch size whenever the
+  attention part is heavier than the compute it saves (B* = "never"). On H100 SXM, Llama 3.1 8B has no balance point at any tested context.
+  The only reachable balance points on H100 SXM are Llama 3.1 70B with int4 weights at context 512 (B* about 115, fits up to about 266 sequences);
+  70B in fp8 at context 512 would need B* about 459 but only about 112 sequences fit.
+* **H6's premise does not hold for fp8 on H100.** bf16 -> fp8 doubles the compute peak and halves the bytes, so the balance point moves by a factor of exactly 1.00.
+  Weight-only int4 with bf16 compute does the opposite of H6: it shrinks bytes 4x with no compute gain, making decode less memory-bound (ratio x4, still far below 1).
+  H6's "inversion" needs hardware compute to grow faster than bytes shrink; the data read here show that is not the case for this precision step.
+* **The simulator's default scale is not decode.** Its HBM k\* (compute/memory time ratio at baseline) is 1.3 to 1.6, i.e. roughly balanced, while real decode on these devices is
+  0.003 to 0.02. The default workloads therefore model a compute-heavy regime (large-batch or prefill-like), not single-stream decode.
+
+Open: measured throughput (these are bounds from specifications), AMD and other accelerators, and prefill, where intensity is high and the conclusion may reverse.
