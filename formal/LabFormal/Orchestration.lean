@@ -129,6 +129,40 @@ theorem totalRegret_ge_overhead (hs : s.Nonempty) {a : α} (ha : a ∈ s) {o : �
 
 end Regret
 
+/-! ## C4 (H13, KV prefetch). Break-even accuracy when the loss and the cost scale with the stall
+
+If the stall saved by a correct prefetch is `T`, a wrong prefetch costs `u * T` (link utilisation `u`) and the predictor costs `γ * T`,
+the break-even accuracy is `(u + γ) / (1 + u)`. -/
+
+/-- Prefetching pays off exactly when the accuracy exceeds `(u + γ) / (1 + u)`. -/
+theorem prefetch_threshold_iff {p T u γ : ℝ} (hT : 0 < T) (hu : 0 ≤ u) :
+    0 < netBenefit p T (u * T) (γ * T) ↔ (u + γ) / (1 + u) < p := by
+  have hBL : 0 < T + u * T := by nlinarith
+  rw [netBenefit_pos_iff hBL]
+  have h : (u * T + γ * T) / (T + u * T) = (u + γ) / (1 + u) := by
+    rw [div_eq_div_iff hBL.ne' (by linarith : (1 + u) ≠ 0)]
+    ring
+  rw [h]
+
+/-- The threshold never decreases as the link gets busier (as long as the predictor costs at most the stall it hides). -/
+theorem prefetch_threshold_mono_u {u u' γ : ℝ} (hu : 0 ≤ u) (huu : u ≤ u') (hγ : γ ≤ 1) :
+    (u + γ) / (1 + u) ≤ (u' + γ) / (1 + u') := by
+  have hu' : 0 ≤ u' := le_trans hu huu
+  rw [div_le_div_iff₀ (by linarith) (by linarith)]
+  nlinarith [mul_nonneg (sub_nonneg.2 hγ) (sub_nonneg.2 huu)]
+
+/-- A predictor that is right more than half the time pays off whenever `u + 2γ < 1`. -/
+theorem prefetch_threshold_lt_half {u γ : ℝ} (hu : 0 ≤ u) (h : u + 2 * γ < 1) :
+    (u + γ) / (1 + u) < 1 / 2 := by
+  rw [div_lt_iff₀ (by linarith)]
+  linarith
+
+/-- The threshold is below 1 (some predictor can pay off) iff the predictor costs less than the stall it hides. -/
+theorem prefetch_threshold_lt_one_iff {u γ : ℝ} (hu : 0 ≤ u) :
+    (u + γ) / (1 + u) < 1 ↔ γ < 1 := by
+  rw [div_lt_one (by linarith)]
+  constructor <;> intro h <;> linarith
+
 end Lab
 
 #print axioms Lab.netBenefit_pos_iff
@@ -141,3 +175,7 @@ end Lab
 #print axioms Lab.regret_nonneg
 #print axioms Lab.regret_eq_zero_iff
 #print axioms Lab.totalRegret_ge_overhead
+#print axioms Lab.prefetch_threshold_iff
+#print axioms Lab.prefetch_threshold_mono_u
+#print axioms Lab.prefetch_threshold_lt_half
+#print axioms Lab.prefetch_threshold_lt_one_iff

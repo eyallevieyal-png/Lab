@@ -113,3 +113,29 @@ ridge about 16 FLOP/byte. The test family `Y = W @ X` (W 8192 x 8192, 256 MiB) f
 
 What this supports: the memory-bound / compute-bound classification at the extremes. What it does not support: a quantitative prediction in the middle, or anything about GPUs.
 Specification-based figures above should therefore be read as ideal bounds, with real kernels in the transition region likely slower than the model says.
+
+## H13: prefetching an offloaded KV cache (`experiments/h13_kv_prefetch.py`, `src/kv_prefetch.py`, `experiments/h13_sim_vs_formula.py`)
+
+Model: if a correct prefetch saves a stall `T`, a wrong one costs `u*T` (u = link utilisation) and the predictor costs `gamma*T`, prediction pays off exactly when the accuracy
+exceeds **p\* = (u + gamma) / (1 + u)** (Lean: `Lab.prefetch_threshold_iff`; monotone in u: `prefetch_threshold_mono_u`; below 1/2 when `u + 2*gamma < 1`; below 1 iff `gamma < 1`).
+
+Specification-based timing (H100 SXM, bf16 KV cache of one sequence over PCIe Gen5; 64 GB/s one way is our reading of the printed 128 GB/s, 128 GB/s also shown):
+fetching a Llama 3.1 8B KV cache takes 0.22 / 1.7 / 11 decode steps at context 512 / 4096 / 32768 (0.11 / 0.85 / 5.5 steps at 128 GB/s). Long contexts make the stall large.
+
+Queueing simulation (one FIFO link, Poisson background traffic at utilisation u, prefetch issued `lead` transfer-times ahead, 6000 epochs, 3 seeds, common random numbers):
+
+| u (background) | formula p\* (gamma = 0) | simulated p\*, lead 1.5 | simulated p\*, lead 3 |
+|---|---|---|---|
+| 0 | 0.000 | 0.000 | 0.000 |
+| 0.25 | 0.200 | 0.144 | 0.033 |
+| 0.50 | 0.333 | 0.389 | 0.263 |
+| 0.75 | 0.429 | 0.900 | 0.845 |
+| 0.90 | 0.474 | 0.999 | 0.999 |
+
+* The formula is a fair approximation up to u about 0.5 (gap at most 0.17) and **fails at high load**. Cause (checked): wasted prefetches add link load, and when the offered load
+  `rho = u + (2 - p) / period` reaches 1 the queue grows without bound (mean stall about 1100 transfer times at u = 0.75, p = 0.1), so no accuracy below about 0.9 pays off.
+  The Lean theorem is correct; what breaks is the assumption that `B`, `L` and `c` are constants. Under congestion `L` grows sharply with load.
+* Using the stream's own load in `u` (u + 1/period) does not repair the gap: that hypothesis was tested and rejected.
+* An adaptive rule that applies the formula with the true `u` and `p` is never worse than the better fixed policy for u <= 0.5, but is worse than reactive at u >= 0.75
+  (it prefetches where the queue then blows up). A usable controller needs a load-dependent loss estimate.
+* Not tested: real KV traffic patterns, several sequences competing for HBM capacity, other links (NVLink, CXL, NVMe: their figures were not sourced).

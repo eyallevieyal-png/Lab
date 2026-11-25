@@ -11,6 +11,7 @@ It is mathematics, not evidence about hardware. Whether real workloads satisfy t
 | `memShare_strictMono`, `memShare_mem_Ioo` | Additive time model: the faster the compute, the larger the memory share (strictly), and it stays strictly between 0 and 1 (H6 in that model). |
 | `memoryBound_iff` | Roofline: compute time <= memory time iff arithmetic intensity <= ridge point. |
 | `regret_nonneg`, `regret_eq_zero_iff`, `oracle_lower_bound`, `totalRegret_ge_overhead` | Regret against the minimum-cost placement is never negative and is zero exactly for optimal placements. |
+| `prefetch_threshold_iff`, `prefetch_threshold_mono_u`, `prefetch_threshold_lt_half`, `prefetch_threshold_lt_one_iff` | KV-prefetch break-even accuracy `(u + gamma) / (1 + u)`: exact threshold, monotone in link utilisation, below 1/2 when `u + 2*gamma < 1`, below 1 iff `gamma < 1`. Valid for constant gain/loss/cost; the queueing simulation shows it fails near link saturation (see docs/MODEL.md). |
 
 Checked: `lake build` succeeds (Lean v4.37.0-rc1, Mathlib v4.37.0-rc1), no `sorry`; every theorem depends only on
 `propext`, `Classical.choice`, `Quot.sound` (`#print axioms` at the end of the file).
