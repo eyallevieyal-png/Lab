@@ -139,3 +139,44 @@ Queueing simulation (one FIFO link, Poisson background traffic at utilisation u,
 * An adaptive rule that applies the formula with the true `u` and `p` is never worse than the better fixed policy for u <= 0.5, but is worse than reactive at u >= 0.75
   (it prefetches where the queue then blows up). A usable controller needs a load-dependent loss estimate.
 * Not tested: real KV traffic patterns, several sequences competing for HBM capacity, other links (NVLink, CXL, NVMe: their figures were not sourced).
+
+## H13 extensions: congestion-aware threshold, real bursty traffic, online controller
+
+**Congestion-aware threshold** (`src/kv_prefetch.py: analytic_breakeven`, `experiments/h13_analytic_vs_sim.py`). The link is approximated as an M/D/1 queue (mean wait `rho / (2 (1 - rho))`
+transfer times) whose load includes this stream and its wasted prefetches: `rho = u + (2 - p) / period`. Stability needs `p > 2 - period * (1 - u)` (Lean: `Lab.stable_iff`);
+if reactive fetching alone already saturates the link (`period * (1 - u) <= 1`) no predictor of accuracy at most 1 keeps it stable (Lean: `Lab.no_stable_predictor`).
+Against the queueing simulation over 84 grid cells (u 0 to 0.9, period 4/6/12, lead 1.5/3, gamma 0/0.05): 20 cells have a saturated reactive policy (excluded); over the other 64, mean absolute error of the
+break-even accuracy is **0.053 (max 0.178) for the M/D/1 model versus 0.176 (max 0.518) for the plain formula**. Where reactive load is 0.7-1 the errors are 0.025 versus 0.291; where it is below 0.7 the plain
+formula is slightly better (0.060 versus 0.082, the Poisson assumption overstates waiting at light load). Both the model and the simulation assume Poisson background traffic and a deterministic service time, so agreement
+validates the analysis of the model, not a real system.
+
+**Real bursty traffic** (`experiments/h13_trace_background.py`; BurstGPT trace, 1.40 million requests over 61 days, arrival timestamps only; the trace has no KV-reuse or session information). Its inter-arrival
+CV^2 is 174 (Poisson: 1; 7.8 once gaps above 60 s are removed) and the hourly request count varies with CV 2.3. Driving the background traffic with three 30,000-request windows of the trace (rescaled so the mean load equals u):
+
+| window | span | per-minute count CV | gap CV^2 | break-even accuracy at u = 0.5 / 0.65 / 0.75 |
+|---|---|---|---|---|
+| 1 | 2.8 h | 0.16 | 2.7 | 0.290 / 0.393 / 0.625 (like Poisson: 0.281 / 0.425 / 0.607) |
+| 3 | 14.7 h | 1.37 | 8.1 | 0.979 / 0.991 / 0.994 |
+| 2 | 67.9 h | 2.67 | 69.9 | 0.999 / 0.999 / 0.999 |
+
+A threshold from the average load is valid only for approximately stationary traffic; in the non-stationary windows the rescaling puts the busiest minutes far above saturation, so no accuracy pays off. These windows are
+overloaded regimes created by the rescaling (a real system would be provisioned for its peaks), so they say little about a well-provisioned deployment.
+
+**Online controller** (`experiments/h13_online_controller.py`): estimates the load from the last 30 transfer times and prefetches only above the M/D/1 break-even for that load. On Poisson traffic and on the smooth
+window it matches the best fixed policy (within 0.07 transfer times in the worst cell). In the bursty windows all policies are dominated by saturation (mean stalls of 300-4800 transfer times) and the controller does **not** help:
+it ends up between reactive and always-prefetch, up to about 15% worse than reactive in some cells. The bottleneck there is capacity, not the prefetch decision.
+
+## Literature check (2026-11-26; from search-result summaries, the papers were not read in full)
+
+* Decode attention being memory-bound at any batch size because every sequence carries its own KV cache is stated in the literature
+  ([Helix Parallelism, arXiv 2507.07120](https://arxiv.org/html/2507.07120v1)); the search found no explicit closed-form critical context length, but that is not an exhaustive search.
+* KV quantization becoming the larger lever as context grows (weight quantization helps most at short context) is reported in
+  [QuantSpec, arXiv 2502.10424](https://arxiv.org/pdf/2502.10424), [KV4-RL, arXiv 2610.14448](https://arxiv.org/pdf/2610.14448) and
+  [KV Pareto, arXiv 2512.01953](https://arxiv.org/html/2512.01953v1). Our "KV bits move the critical context" result is therefore a known conclusion in a new closed form, not a discovery.
+* Speculative KV prefetching from CPU memory is established ([InfiniGen, OSDI 2024, arXiv 2406.19707](https://arxiv.org/html/2406.19707v1); [KVPR, arXiv 2411.17089](https://arxiv.org/html/2411.17089v2)).
+  [Where Should the KV Cache Live?, arXiv 2609.16215](https://arxiv.org/pdf/2609.16215) models speculative fetches competing with demand traffic on one link and reports results uniformly negative for prefetch;
+  [SP-MoE, arXiv 2510.10302](https://arxiv.org/pdf/2510.10302) reports prefetch failures from bandwidth contention; patents describe throttling prefetch by congestion and accuracy.
+  Our congestion finding is therefore consistent with, not new relative to, existing results. The search surfaced no paper with a queueing-based break-even accuracy, so the closed form with proofs may be a small gap.
+* A public Lean 4 formalization of a roofline or inference cost model was not found (the nearest, the Rust crate `aprender-contracts`, uses Kani). A verified decision-threshold / roofline library may be unoccupied, which is
+  an engineering contribution rather than a scientific one.
+* A 2026 study reports that at batch 1 an H100 reaches only about 27% of its analytic memory floor ([arXiv 2605.30571](https://arxiv.org/pdf/2605.30571)), the same direction as our CPU measurement (the roofline is optimistic).

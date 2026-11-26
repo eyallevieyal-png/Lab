@@ -163,6 +163,56 @@ theorem prefetch_threshold_lt_one_iff {u γ : ℝ} (hu : 0 ≤ u) :
   rw [div_lt_one (by linarith)]
   constructor <;> intro h <;> linarith
 
+/-! ## C5. No balance point when the KV cache dominates
+
+One decode step with batch `B`: compute time `B * f`, memory time `w + B * k` (`w` = weight read time, read once; `f`, `k` = compute time and KV read
+time per sequence). With context `T`: `f = a + c * T` (weight matmuls plus attention) and `k = s * T`. -/
+
+/-- If the KV read time per sequence is at least the compute time per sequence, no batch size makes the step compute-bound. -/
+theorem no_balance_point {w f k B : ℝ} (hw : 0 < w) (hfk : f ≤ k) (hB : 0 ≤ B) : B * f < w + B * k := by
+  nlinarith
+
+/-- Otherwise the step is compute-bound exactly for batches larger than `w / (f - k)`. -/
+theorem compute_bound_iff {w f k B : ℝ} (hfk : k < f) : w + B * k < B * f ↔ w / (f - k) < B := by
+  rw [div_lt_iff₀ (by linarith)]
+  constructor <;> intro h <;> nlinarith
+
+/-- The critical context: KV reads dominate compute per sequence exactly when the context is at least `a / (s - c)` (needs `c < s`). -/
+theorem kv_dominates_iff {a c s T : ℝ} (hs : c < s) : a + c * T ≤ s * T ↔ a / (s - c) ≤ T := by
+  rw [div_le_iff₀ (by linarith)]
+  constructor <;> intro h <;> nlinarith
+
+/-- A larger KV read cost per token (for example a cache with more bits per element) lowers the critical context, so shrinking the KV raises it. -/
+theorem critical_context_anti {a c s s' : ℝ} (ha : 0 ≤ a) (hs : c < s) (hss : s ≤ s') :
+    a / (s' - c) ≤ a / (s - c) := by
+  exact div_le_div_of_nonneg_left ha (by linarith) (by linarith)
+
+/-! ## C6. Stability of a shared link with wasted prefetches
+
+Own demand fetches every `n` transfer times, background utilisation `u`, prefetch accuracy `p`: the offered load of an always-prefetch policy is
+`u + (2 - p) / n` (one transfer per epoch, plus one wasted transfer with probability `1 - p`). -/
+
+/-- The always-prefetch policy keeps the link below saturation exactly when `p > 2 - n * (1 - u)`. -/
+theorem stable_iff {u p n : ℝ} (hn : 0 < n) : u + (2 - p) / n < 1 ↔ 2 - n * (1 - u) < p := by
+  constructor
+  · intro h
+    have h' : (2 - p) / n < 1 - u := by linarith
+    have := (div_lt_iff₀ hn).1 h'
+    nlinarith
+  · intro h
+    have h' : 2 - p < (1 - u) * n := by nlinarith
+    have := (div_lt_iff₀ hn).2 h'
+    linarith
+
+/-- If reactive fetching alone already saturates the link (`n * (1 - u) ≤ 1`), no predictor of accuracy at most 1 keeps it stable. -/
+theorem no_stable_predictor {u n : ℝ} (hn : 0 < n) (h : n * (1 - u) ≤ 1) : ∀ p : ℝ, p ≤ 1 → ¬ (u + (2 - p) / n < 1) := by
+  intro p hp hlt
+  have h1 : 1 / n ≤ (2 - p) / n := div_le_div_of_nonneg_right (by linarith) hn.le
+  have h2 : 1 - u ≤ 1 / n := by
+    rw [le_div_iff₀ hn]
+    linarith
+  linarith
+
 end Lab
 
 #print axioms Lab.netBenefit_pos_iff
@@ -179,3 +229,9 @@ end Lab
 #print axioms Lab.prefetch_threshold_mono_u
 #print axioms Lab.prefetch_threshold_lt_half
 #print axioms Lab.prefetch_threshold_lt_one_iff
+#print axioms Lab.no_balance_point
+#print axioms Lab.compute_bound_iff
+#print axioms Lab.kv_dominates_iff
+#print axioms Lab.critical_context_anti
+#print axioms Lab.stable_iff
+#print axioms Lab.no_stable_predictor

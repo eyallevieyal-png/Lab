@@ -1,0 +1,859 @@
+{
+  "rows": [
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.177520751953125,
+      "period": 4.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -2.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.333343505859375,
+      "period": 4.0,
+      "plain": 0.2,
+      "simulated": 0.1962890625,
+      "stability_floor": -1.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.666656494140625,
+      "period": 4.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.61376953125,
+      "stability_floor": 0.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.913909912109375,
+      "period": 4.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.892578125,
+      "stability_floor": 0.6000000000000001,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.99755859375,
+      "stability_floor": 1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.99951171875,
+      "stability_floor": 1.4,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.6,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.206085205078125,
+      "period": 4.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -2.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.352508544921875,
+      "period": 4.0,
+      "plain": 0.24,
+      "simulated": 0.236328125,
+      "stability_floor": -1.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.675079345703125,
+      "period": 4.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.62548828125,
+      "stability_floor": 0.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.916229248046875,
+      "period": 4.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.89599609375,
+      "stability_floor": 0.6000000000000001,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.99755859375,
+      "stability_floor": 1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.99951171875,
+      "stability_floor": 1.4,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.6,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.177520751953125,
+      "period": 4.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -2.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.274932861328125,
+      "period": 4.0,
+      "plain": 0.2,
+      "simulated": 0.0966796875,
+      "stability_floor": -1.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.548553466796875,
+      "period": 4.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.50830078125,
+      "stability_floor": 0.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.863494873046875,
+      "period": 4.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.84912109375,
+      "stability_floor": 0.6000000000000001,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.9970703125,
+      "stability_floor": 1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.4,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.998046875,
+      "stability_floor": 1.6,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.206085205078125,
+      "period": 4.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -2.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.291961669921875,
+      "period": 4.0,
+      "plain": 0.24,
+      "simulated": 0.134765625,
+      "stability_floor": -1.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.553802490234375,
+      "period": 4.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.515625,
+      "stability_floor": 0.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.865081787109375,
+      "period": 4.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.85205078125,
+      "stability_floor": 0.6000000000000001,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.9970703125,
+      "stability_floor": 1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.4,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": null,
+      "period": 4.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.998046875,
+      "stability_floor": 1.6,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.106109619140625,
+      "period": 6.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -4.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.175994873046875,
+      "period": 6.0,
+      "plain": 0.2,
+      "simulated": 0.14453125,
+      "stability_floor": -2.5,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.414215087890625,
+      "period": 6.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.39990234375,
+      "stability_floor": -1.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.695587158203125,
+      "period": 6.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.68115234375,
+      "stability_floor": -0.09999999999999964,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.907562255859375,
+      "period": 6.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.89599609375,
+      "stability_floor": 0.5,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.99951171875,
+      "stability_floor": 1.0999999999999999,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.99853515625,
+      "stability_floor": 1.4000000000000001,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.142303466796875,
+      "period": 6.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -4.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.202056884765625,
+      "period": 6.0,
+      "plain": 0.24,
+      "simulated": 0.1865234375,
+      "stability_floor": -2.5,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.430999755859375,
+      "period": 6.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.42529296875,
+      "stability_floor": -1.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.703704833984375,
+      "period": 6.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.69091796875,
+      "stability_floor": -0.09999999999999964,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.910125732421875,
+      "period": 6.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.89990234375,
+      "stability_floor": 0.5,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.99951171875,
+      "stability_floor": 1.0999999999999999,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.99853515625,
+      "stability_floor": 1.4000000000000001,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.106109619140625,
+      "period": 6.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -4.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.165191650390625,
+      "period": 6.0,
+      "plain": 0.2,
+      "simulated": 0.03466796875,
+      "stability_floor": -2.5,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.291473388671875,
+      "period": 6.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.271484375,
+      "stability_floor": -1.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.574188232421875,
+      "period": 6.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.57568359375,
+      "stability_floor": -0.09999999999999964,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.850799560546875,
+      "period": 6.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.84423828125,
+      "stability_floor": 0.5,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.0999999999999999,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.99755859375,
+      "stability_floor": 1.4000000000000001,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.142303466796875,
+      "period": 6.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -4.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.190643310546875,
+      "period": 6.0,
+      "plain": 0.24,
+      "simulated": 0.07568359375,
+      "stability_floor": -2.5,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.303802490234375,
+      "period": 6.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.2900390625,
+      "stability_floor": -1.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.579437255859375,
+      "period": 6.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.5810546875,
+      "stability_floor": -0.09999999999999964,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.852630615234375,
+      "period": 6.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.8447265625,
+      "stability_floor": 0.5,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.9990234375,
+      "stability_floor": 1.0999999999999999,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": null,
+      "period": 6.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.99755859375,
+      "stability_floor": 1.4000000000000001,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.047149658203125,
+      "period": 12.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -10.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.072906494140625,
+      "period": 12.0,
+      "plain": 0.2,
+      "simulated": 0.1376953125,
+      "stability_floor": -7.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.161224365234375,
+      "period": 12.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.26953125,
+      "stability_floor": -4.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.330657958984375,
+      "period": 12.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.40625,
+      "stability_floor": -2.1999999999999993,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.561553955078125,
+      "period": 12.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.57666015625,
+      "stability_floor": -1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.880218505859375,
+      "period": 12.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.86474609375,
+      "stability_floor": 0.19999999999999973,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 1.5,
+      "md1": 0.990570068359375,
+      "period": 12.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.9912109375,
+      "stability_floor": 0.8000000000000003,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.090606689453125,
+      "period": 12.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -10.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.107269287109375,
+      "period": 12.0,
+      "plain": 0.24,
+      "simulated": 0.177734375,
+      "stability_floor": -7.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.188385009765625,
+      "period": 12.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.30078125,
+      "stability_floor": -4.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.351226806640625,
+      "period": 12.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.43017578125,
+      "stability_floor": -2.1999999999999993,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.574249267578125,
+      "period": 12.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.58984375,
+      "stability_floor": -1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.883697509765625,
+      "period": 12.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.86865234375,
+      "stability_floor": 0.19999999999999973,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 1.5,
+      "md1": 0.990875244140625,
+      "period": 12.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.9912109375,
+      "stability_floor": 0.8000000000000003,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.047149658203125,
+      "period": 12.0,
+      "plain": 0.0,
+      "simulated": 0.0,
+      "stability_floor": -10.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.072906494140625,
+      "period": 12.0,
+      "plain": 0.2,
+      "simulated": 0.02783203125,
+      "stability_floor": -7.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.129547119140625,
+      "period": 12.0,
+      "plain": 0.3333333333333333,
+      "simulated": 0.13720703125,
+      "stability_floor": -4.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.206512451171875,
+      "period": 12.0,
+      "plain": 0.393939393939394,
+      "simulated": 0.27490234375,
+      "stability_floor": -2.1999999999999993,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.414215087890625,
+      "period": 12.0,
+      "plain": 0.42857142857142855,
+      "simulated": 0.453125,
+      "stability_floor": -1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.805145263671875,
+      "period": 12.0,
+      "plain": 0.45945945945945943,
+      "simulated": 0.79296875,
+      "stability_floor": 0.19999999999999973,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.0,
+      "lead": 3.0,
+      "md1": 0.982086181640625,
+      "period": 12.0,
+      "plain": 0.4736842105263158,
+      "simulated": 0.98046875,
+      "stability_floor": 0.8000000000000003,
+      "u": 0.9
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.090606689453125,
+      "period": 12.0,
+      "plain": 0.05,
+      "simulated": 0.05078125,
+      "stability_floor": -10.0,
+      "u": 0.0
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.107269287109375,
+      "period": 12.0,
+      "plain": 0.24,
+      "simulated": 0.0673828125,
+      "stability_floor": -7.0,
+      "u": 0.25
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.151763916015625,
+      "period": 12.0,
+      "plain": 0.3666666666666667,
+      "simulated": 0.166015625,
+      "stability_floor": -4.0,
+      "u": 0.5
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.219696044921875,
+      "period": 12.0,
+      "plain": 0.4242424242424243,
+      "simulated": 0.294921875,
+      "stability_floor": -2.1999999999999993,
+      "u": 0.65
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.422576904296875,
+      "period": 12.0,
+      "plain": 0.4571428571428572,
+      "simulated": 0.4638671875,
+      "stability_floor": -1.0,
+      "u": 0.75
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.807708740234375,
+      "period": 12.0,
+      "plain": 0.48648648648648646,
+      "simulated": 0.794921875,
+      "stability_floor": 0.19999999999999973,
+      "u": 0.85
+    },
+    {
+      "gamma": 0.05,
+      "lead": 3.0,
+      "md1": 0.982391357421875,
+      "period": 12.0,
+      "plain": 0.5000000000000001,
+      "simulated": 0.98095703125,
+      "stability_floor": 0.8000000000000003,
+      "u": 0.9
+    }
+  ],
+  "summary": {
+    "cells_compared": 64,
+    "cells_reactive_saturated": 20,
+    "cells_total": 84,
+    "max_abs_error_md1": 0.178253173828125,
+    "max_abs_error_plain": 0.5175267269736842,
+    "md1_never_in_stable_cells": 0,
+    "mean_abs_error_md1": 0.05340099334716797,
+    "mean_abs_error_plain": 0.17571409603861032,
+    "mean_error_md1_reactive load 0.7-1": 0.024532318115234375,
+    "mean_error_md1_reactive load < 0.7": 0.08226966857910156,
+    "mean_error_plain_reactive load 0.7-1": 0.29146847528034564,
+    "mean_error_plain_reactive load < 0.7": 0.059959716796875,
+    "sim_never_in_stable_cells": 0
+  }
+}
