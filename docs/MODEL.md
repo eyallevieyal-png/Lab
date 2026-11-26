@@ -180,3 +180,20 @@ it ends up between reactive and always-prefetch, up to about 15% worse than reac
 * A public Lean 4 formalization of a roofline or inference cost model was not found (the nearest, the Rust crate `aprender-contracts`, uses Kani). A verified decision-threshold / roofline library may be unoccupied, which is
   an engineering contribution rather than a scientific one.
 * A 2026 study reports that at batch 1 an H100 reaches only about 27% of its analytic memory floor ([arXiv 2605.30571](https://arxiv.org/pdf/2605.30571)), the same direction as our CPU measurement (the roofline is optimistic).
+
+## Mixture-of-experts extension (2026-11-26, specification-based, nothing measured)
+`calibration/moe_model.py`, `experiments/h6_moe.py`, `tests/test_moe.py`. Architectures from the public config.json of Qwen3-30B-A3B (128 experts, top-8) and Mixtral-8x7B (8 experts, top-2); our parameter counts
+match the published sizes (30.5B / 46.7B total).
+
+* **Model.** A step with n = batch x spec tokens reads the non-expert weights once and `U(n) = E(1-(1-k/E)^n)` experts per layer (independent uniform routing: ASSUMED). Compute is n x active parameters.
+  The control is a dense twin with the same active parameters and all experts always read.
+* **Union fraction (uniform routing).** Qwen3-30B-A3B: 6% (n=1), 40% (n=8), 87% (n=32), 98% (n=64). Mixtral: 25% (n=1), 90% (n=8). The 40% for 8 positions matches the figure in the Hugging Face blog.
+* **Balance batch on H100 SXM (bf16 or fp8, same result).** Plain decode (spec 1) has no balance point at context 512 or 4096 for either model: KV reads alone exceed the compute, as for the dense models.
+  With speculative verification of 4 / 8 positions at context 512: Qwen3-30B-A3B B\* = 1,612 / 482 sequences against 163 / 49 for the dense twin (x9.9); Mixtral B\* = 331 / 148 against 90 / 40 (x3.7).
+  At context 4096 only Mixtral with 8 positions balances (B\* = 440).
+* **Why the factor is total / active parameters.** At B\* the step already touches nearly every expert (union > 99.9%), so the weight read time is that of the full model while the compute is that of the active
+  part: factor = 30.5/3.04 = 10 (Qwen), 46.7/12.75 = 3.7 (Mixtral). Tested within 12%.
+* **Skew.** With a Zipf-like popularity (approximation) the union at n=8 falls from 40% to 28%, but B\* does not move, because the union is saturated at the balance point. Skew matters only well below B\*.
+* **Capacity.** The batches above often exceed what fits next to the weights on one H100 (Qwen bf16 context 512: max 376 sequences, fp8: 1,965; Mixtral bf16 does not fit at all). So for bf16 MoE the balance point is
+  mostly unreachable on one card; it needs fp8, several cards or short contexts.
+* **Not shown:** real routers are correlated across tokens of one sequence (fewer distinct experts per step) and across layers; expert-parallel communication and load imbalance are not modelled; no measurement.
