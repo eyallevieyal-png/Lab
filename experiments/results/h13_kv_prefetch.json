@@ -1,0 +1,75 @@
+{
+  "assumptions": "u and gamma are parameters; link bandwidth from NVIDIA H100 page (128 GB/s printed, 64 GB/s one way assumed)",
+  "rows": [
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.000524288,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.001048576,
+      "context": 512,
+      "kv_bytes": 67108864,
+      "model": "Llama-3.1-8B",
+      "step_s": 0.004814059367164179
+    },
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.004194304,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.008388608,
+      "context": 4096,
+      "kv_bytes": 536870912,
+      "model": "Llama-3.1-8B",
+      "step_s": 0.004954286844179105
+    },
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.033554432,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.067108864,
+      "context": 32768,
+      "kv_bytes": 4294967296,
+      "model": "Llama-3.1-8B",
+      "step_s": 0.006076106660298507
+    },
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.00131072,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.00262144,
+      "context": 512,
+      "kv_bytes": 167772160,
+      "model": "Llama-3.1-70B",
+      "step_s": 0.04217090965014925
+    },
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.01048576,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.02097152,
+      "context": 4096,
+      "kv_bytes": 1342177280,
+      "model": "Llama-3.1-70B",
+      "step_s": 0.04252147834268657
+    },
+    {
+      "T_x_s[PCIe5 as printed, 128 GB/s]": 0.08388608,
+      "T_x_s[PCIe5 x16, 64 GB/s one way (assumed)]": 0.16777216,
+      "context": 32768,
+      "kv_bytes": 10737418240,
+      "model": "Llama-3.1-70B",
+      "step_s": 0.04532602788298507
+    }
+  ],
+  "thresholds": {
+    "0.0": {
+      "0.0": 0.0,
+      "0.05": 0.05
+    },
+    "0.25": {
+      "0.0": 0.2,
+      "0.05": 0.24
+    },
+    "0.5": {
+      "0.0": 0.3333333333333333,
+      "0.05": 0.3666666666666667
+    },
+    "0.75": {
+      "0.0": 0.42857142857142855,
+      "0.05": 0.4571428571428572
+    },
+    "0.9": {
+      "0.0": 0.4736842105263158,
+      "0.05": 0.5000000000000001
+    }
+  }
+}

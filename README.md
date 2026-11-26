@@ -1,3 +1,5 @@
+> **Read this first.** The first version of this simulator had 8 defects that made its results artifacts; they are fixed on this branch and the old results should be discarded. The research write-up (decode vs prefill, KV-prefetch threshold, MoE, 20 Lean theorems, and the limits) is in [docs/POST.md](docs/POST.md); assumptions are in [docs/MODEL.md](docs/MODEL.md). No GPU measurements yet.
+
 # Memory Frontier Labs Simulator
 
 This repository reconstructs a minimal but scientifically structured simulator for the research described in [Master_promt.md](Master_promt.md).

@@ -1,0 +1,199 @@
+# Model assumptions and changes from the first version
+
+This simulator is a model, not hardware evidence. Every number it produces follows from the assumptions below. Branch `fix/simulator-validity`.
+
+## What was wrong in the first version (found by reading the code and re-running it)
+
+| # | Problem | Effect |
+|---|---|---|
+| 1 | `hash(name) % 17` seeded the workloads | Python randomises `hash()` of strings per process, so two runs of the same code gave different results (72 of 299 fields differed). |
+| 2 | The Reactive controller returned `op["oracle_resource"]` | Reactive was the oracle with a small overhead, so "is prediction worth its cost?" was answered "never" by construction. |
+| 3 | `oracle_time` was a fixed fraction of the chosen resource's own times | "Regret" was not regret: even the Oracle had positive regret (about 0.15) and in one case more than Reactive. |
+| 4 | `memory_cost` was computed and never used | H6 (compute-memory inversion) could not be tested: no result could depend on the memory side of the precision. |
+| 5 | `hasattr(controller, "predict")` was always False | The prediction cost was never charged to any controller. |
+| 6 | Prediction was correct with probability exactly equal to the confidence | Calibration error could not occur, so it could not be studied. |
+| 7 | `seed` did not change the workload | Reactive, Oracle and WSA gave identical results for every seed. |
+| 8 | Bandwidths in GB/s were divided by 8 | Transfers were 8 times too slow. Sizes were also so small that transfer time was about zero. |
+
+## The model now (all times in ms)
+
+* Each operation has a `home_resource` (where its data lives). Running elsewhere first moves `size_bytes * memory_multiplier` bytes.
+* `placement_cost(op, r)` = queue + transfer + preparation + execution + measurement + post-processing + synchronisation, where
+  execution = compute + operand read time on `r` (or `max` of the two with `overlap_compute_memory=True`).
+* Oracle = minimum placement cost. Regret = chosen placement cost - minimum (never negative, 0 for the Oracle).
+  `total_regret` also includes the controller overhead and prediction cost.
+* Reactive = data-local (never moves data, no access to the oracle).
+* Predictive trusts the predictor. Adaptive acts on it only when `p*B - (1-p)*L - c > 0` (see `expected_net_benefit`).
+  Confidence-gated adds a confidence threshold. WSA keeps its original rules, falling back to data-local.
+* The predictor is right with probability `confidence + calibration_offset` (0 = calibrated by construction). `calibration_error` is measured (ECE).
+* Useful / harmful / neutral are relative to staying data-local (placement cost lower / higher / equal).
+
+## Assumptions that are choices, not facts
+
+* Operand working sets are 64 MiB * (1 + (i % 9) * 0.35) * (1 + memory_pressure), with +-15% jitter. Results depend on this scale.
+* The precision catalog multipliers, resource speed ratios, queue costs and QPU timings are unchanged from the first version and are unvalidated.
+* `compute_ms_per_unit = 0.18` keeps the first version's compute scale, now read as milliseconds.
+* The workload "state" feedback loop (+0.05 / -0.04) is unchanged.
+
+## What the corrected model shows (simulation only, 5 seeds, 24 operations, int4)
+
+* The Oracle is the lower bound in every run; Adaptive and Confidence-Gated Adaptive are within one standard deviation of Reactive in mean end-to-end time
+  (they rarely act, and are never harmful); Predictive is clearly worse (12-18% harmful placements); WSA is worse than Reactive.
+* So under these assumptions, prediction does not pay off against data-local placement unless it is gated, and gating makes it match Reactive, not beat it.
+* H6 is analysed in the next section; the first probe (memory 92-96% of compute + memory time at the default scale) is one point of that sweep.
+
+## H6 sensitivity (`experiments/h6_sensitivity.py`, results in `experiments/results/h6_sensitivity.json`)
+
+For the data-local Reactive controller, memory share = M / (C/k + M) when compute is k times faster. The simulator matches this closed form exactly
+(max error 0) and is strictly increasing in k in every configuration, as proved in `formal/LabFormal/Orchestration.lean` (`memShare_strictMono`).
+The share reaches 50% at **k\* = C / M**, the compute speed-up needed for the "inversion". Measured k\* (fp16, int4; all workloads, 3 seeds):
+
+| working-set scale | HBM | DRAM | CXL | NVMe | QPU |
+|---|---|---|---|---|---|
+| 1/256 | 2.3 / 2.1 | 0.53 / 0.48 | 0.36 / 0.32 | 0.23 / 0.21 | 1.1 / 1.0 |
+| 1/16 | 2.3 / 2.1 | 0.51 / 0.47 | 0.34 / 0.31 | 0.20 / 0.20 | 1.1 / 1.0 |
+| 1 (default, 64 MiB-scale) | 1.3 / 1.6 | 0.12 / 0.20 | 0.07 / 0.12 | 0.02 / 0.04 | 0.33 / 0.51 |
+| 4 | 0.56 / 0.92 | 0.04 / 0.07 | 0.02 / 0.04 | 0.005 / 0.01 | 0.11 / 0.21 |
+
+(k\* < 1 means memory already dominates at k = 1.)
+
+* Only HBM (and the QPU at small sizes) is compute-dominated at baseline; DRAM, CXL and NVMe are memory-dominated at every size tested.
+  For HBM at the default scale, a 1.3-1.6x compute speed-up already flips it.
+* The precision catalog works against H6's premise: int4 shrinks memory bytes to 0.4 of fp16 but net compute only to about 0.89 (1.6 / 1.8),
+  so quantization raises k\* (HBM 1.3 -> 1.57) instead of lowering it. These multipliers are unvalidated first-version values
+  (4-bit weights would be 0.25 of the bytes), so this is a statement about the catalog, not about hardware.
+* In the additive model H6 is a mathematical fact (proved). The empirical content is where k\* lies, i.e. the ridge point, which is set
+  entirely by the working-set size, tier bandwidths and compute speeds. Those are assumptions here, so the simulator cannot confirm or refute H6 for real
+  inference; it can only show which parameter regimes would.
+
+## Not validated
+
+Nothing here was compared with measurements. The old `results_summary.json` at the repository root and the old files in `experiments/results/`
+come from the first version; the files in `experiments/results/` were regenerated, `results_summary.json` was not.
+
+## H6 calibrated on public specifications (`calibration/`, `experiments/h6_calibrated.py`, `experiments/results/h6_calibrated.json`)
+
+Inputs read on 2026-11-25: NVIDIA's H100 page (H100 SXM: 3.35 TB/s, 80 GB; H100 NVL: 3.9 TB/s, 94 GB; tensor throughput rows are footnoted "with sparsity",
+so **dense = half of the printed figure is our derivation**) and the `config.json` files of Llama 3.1 8B and 70B (the computed parameter counts, 8.03B and 70.55B,
+follow from those architectures). AMD MI300X could not be read (page timed out twice) and is not used. Nothing here is a measurement: it is a first-order roofline
+calculation (no overlap effects, no kernel inefficiency, no communication, one device; 70B in bf16 does not fit one H100, so its rows are per-device idealisations).
+
+One decode step, batch B, context T: compute time = B * (2 * matmul params + attention FLOPs) / dense peak; memory time = (weights + B * T * KV bytes per token) / bandwidth.
+
+* **Batch 1 decode is memory-bound by a factor of about 50 to 300**: compute time is 0.3% to 2% of memory time for both models, every context length (512 to 32768),
+  every scenario and both devices.
+* **There is often no balance point at all.** The KV cache is read per sequence, so attention keeps the step memory-bound at any batch size whenever the
+  attention part is heavier than the compute it saves (B* = "never"). On H100 SXM, Llama 3.1 8B has no balance point at any tested context.
+  The only reachable balance points on H100 SXM are Llama 3.1 70B with int4 weights at context 512 (B* about 115, fits up to about 266 sequences);
+  70B in fp8 at context 512 would need B* about 459 but only about 112 sequences fit.
+* **H6's premise does not hold for fp8 on H100.** bf16 -> fp8 doubles the compute peak and halves the bytes, so the balance point moves by a factor of exactly 1.00.
+  Weight-only int4 with bf16 compute does the opposite of H6: it shrinks bytes 4x with no compute gain, making decode less memory-bound (ratio x4, still far below 1).
+  H6's "inversion" needs hardware compute to grow faster than bytes shrink; the data read here show that is not the case for this precision step.
+* **The simulator's default scale is not decode.** Its HBM k\* (compute/memory time ratio at baseline) is 1.3 to 1.6, i.e. roughly balanced, while real decode on these devices is
+  0.003 to 0.02. The default workloads therefore model a compute-heavy regime (large-batch or prefill-like), not single-stream decode.
+
+Open: measured throughput (these are bounds from specifications), AMD and other accelerators, and prefill, where intensity is high and the conclusion may reverse.
+
+### Prefill (same calibration, H100 SXM, one sequence, whole prompt at once)
+
+Prefill becomes compute-bound at about 300 prompt tokens in bf16 and in fp8 (S* = 316 for Llama 3.1 8B, 300 for 70B); at 2048 tokens compute time is about 6.6-6.9
+times memory time. Weight-only int4 lowers S* to about 75-80 tokens (even more compute-bound). So the picture is split: **decode is memory-dominated, prefill is
+compute-dominated**, and H6's direction ("memory share grows as compute gets cheaper") has to be stated per phase. These are specification-based bounds, not measurements.
+
+## A real measurement on one machine (`experiments/measure_roofline.py`, `requirements-bench.txt`)
+
+Run on a laptop CPU (Intel Core i5-1035G1, 4 cores, 7.7 GB RAM, no GPU, numpy 2.5.5 / OpenBLAS, float32). Measured: about 13.7 GB/s memory bandwidth, about 222 GFLOPS float32 matmul,
+ridge about 16 FLOP/byte. The test family `Y = W @ X` (W 8192 x 8192, 256 MiB) from matrix-vector (B = 1) to matrix-matrix (B = 512) against the roofline prediction
+`max(flops/peak, bytes/bandwidth)`:
+
+* B = 1: measured/predicted 0.94. B >= 256: 0.97-1.08. The model is accurate at both ends.
+* B = 2 to 32: measured is **3.3-3.7 times slower than predicted** (time stays flat at about 65-74 ms while the model says about 20 ms), so in this regime the model is not predictive.
+  A plausible but **unverified** cause is that the BLAS matrix-matrix kernel repacks the large matrix W before multiplying, moving about 3 times the counted bytes.
+* The predicted balance batch is 33; the first measured batch reaching 50% of peak is 64. So the first-order roofline is optimistic by about 2x about where the crossover is.
+
+What this supports: the memory-bound / compute-bound classification at the extremes. What it does not support: a quantitative prediction in the middle, or anything about GPUs.
+Specification-based figures above should therefore be read as ideal bounds, with real kernels in the transition region likely slower than the model says.
+
+## H13: prefetching an offloaded KV cache (`experiments/h13_kv_prefetch.py`, `src/kv_prefetch.py`, `experiments/h13_sim_vs_formula.py`)
+
+Model: if a correct prefetch saves a stall `T`, a wrong one costs `u*T` (u = link utilisation) and the predictor costs `gamma*T`, prediction pays off exactly when the accuracy
+exceeds **p\* = (u + gamma) / (1 + u)** (Lean: `Lab.prefetch_threshold_iff`; monotone in u: `prefetch_threshold_mono_u`; below 1/2 when `u + 2*gamma < 1`; below 1 iff `gamma < 1`).
+
+Specification-based timing (H100 SXM, bf16 KV cache of one sequence over PCIe Gen5; 64 GB/s one way is our reading of the printed 128 GB/s, 128 GB/s also shown):
+fetching a Llama 3.1 8B KV cache takes 0.22 / 1.7 / 11 decode steps at context 512 / 4096 / 32768 (0.11 / 0.85 / 5.5 steps at 128 GB/s). Long contexts make the stall large.
+
+Queueing simulation (one FIFO link, Poisson background traffic at utilisation u, prefetch issued `lead` transfer-times ahead, 6000 epochs, 3 seeds, common random numbers):
+
+| u (background) | formula p\* (gamma = 0) | simulated p\*, lead 1.5 | simulated p\*, lead 3 |
+|---|---|---|---|
+| 0 | 0.000 | 0.000 | 0.000 |
+| 0.25 | 0.200 | 0.144 | 0.033 |
+| 0.50 | 0.333 | 0.389 | 0.263 |
+| 0.75 | 0.429 | 0.900 | 0.845 |
+| 0.90 | 0.474 | 0.999 | 0.999 |
+
+* The formula is a fair approximation up to u about 0.5 (gap at most 0.17) and **fails at high load**. Cause (checked): wasted prefetches add link load, and when the offered load
+  `rho = u + (2 - p) / period` reaches 1 the queue grows without bound (mean stall about 1100 transfer times at u = 0.75, p = 0.1), so no accuracy below about 0.9 pays off.
+  The Lean theorem is correct; what breaks is the assumption that `B`, `L` and `c` are constants. Under congestion `L` grows sharply with load.
+* Using the stream's own load in `u` (u + 1/period) does not repair the gap: that hypothesis was tested and rejected.
+* An adaptive rule that applies the formula with the true `u` and `p` is never worse than the better fixed policy for u <= 0.5, but is worse than reactive at u >= 0.75
+  (it prefetches where the queue then blows up). A usable controller needs a load-dependent loss estimate.
+* Not tested: real KV traffic patterns, several sequences competing for HBM capacity, other links (NVLink, CXL, NVMe: their figures were not sourced).
+
+## H13 extensions: congestion-aware threshold, real bursty traffic, online controller
+
+**Congestion-aware threshold** (`src/kv_prefetch.py: analytic_breakeven`, `experiments/h13_analytic_vs_sim.py`). The link is approximated as an M/D/1 queue (mean wait `rho / (2 (1 - rho))`
+transfer times) whose load includes this stream and its wasted prefetches: `rho = u + (2 - p) / period`. Stability needs `p > 2 - period * (1 - u)` (Lean: `Lab.stable_iff`);
+if reactive fetching alone already saturates the link (`period * (1 - u) <= 1`) no predictor of accuracy at most 1 keeps it stable (Lean: `Lab.no_stable_predictor`).
+Against the queueing simulation over 84 grid cells (u 0 to 0.9, period 4/6/12, lead 1.5/3, gamma 0/0.05): 20 cells have a saturated reactive policy (excluded); over the other 64, mean absolute error of the
+break-even accuracy is **0.053 (max 0.178) for the M/D/1 model versus 0.176 (max 0.518) for the plain formula**. Where reactive load is 0.7-1 the errors are 0.025 versus 0.291; where it is below 0.7 the plain
+formula is slightly better (0.060 versus 0.082, the Poisson assumption overstates waiting at light load). Both the model and the simulation assume Poisson background traffic and a deterministic service time, so agreement
+validates the analysis of the model, not a real system.
+
+**Real bursty traffic** (`experiments/h13_trace_background.py`; BurstGPT trace, 1.40 million requests over 61 days, arrival timestamps only; the trace has no KV-reuse or session information). Its inter-arrival
+CV^2 is 174 (Poisson: 1; 7.8 once gaps above 60 s are removed) and the hourly request count varies with CV 2.3. Driving the background traffic with three 30,000-request windows of the trace (rescaled so the mean load equals u):
+
+| window | span | per-minute count CV | gap CV^2 | break-even accuracy at u = 0.5 / 0.65 / 0.75 |
+|---|---|---|---|---|
+| 1 | 2.8 h | 0.16 | 2.7 | 0.290 / 0.393 / 0.625 (like Poisson: 0.281 / 0.425 / 0.607) |
+| 3 | 14.7 h | 1.37 | 8.1 | 0.979 / 0.991 / 0.994 |
+| 2 | 67.9 h | 2.67 | 69.9 | 0.999 / 0.999 / 0.999 |
+
+A threshold from the average load is valid only for approximately stationary traffic; in the non-stationary windows the rescaling puts the busiest minutes far above saturation, so no accuracy pays off. These windows are
+overloaded regimes created by the rescaling (a real system would be provisioned for its peaks), so they say little about a well-provisioned deployment.
+
+**Online controller** (`experiments/h13_online_controller.py`): estimates the load from the last 30 transfer times and prefetches only above the M/D/1 break-even for that load. On Poisson traffic and on the smooth
+window it matches the best fixed policy (within 0.07 transfer times in the worst cell). In the bursty windows all policies are dominated by saturation (mean stalls of 300-4800 transfer times) and the controller does **not** help:
+it ends up between reactive and always-prefetch, up to about 15% worse than reactive in some cells. The bottleneck there is capacity, not the prefetch decision.
+
+## Literature check (2026-11-26; from search-result summaries, the papers were not read in full)
+
+* Decode attention being memory-bound at any batch size because every sequence carries its own KV cache is stated in the literature
+  ([Helix Parallelism, arXiv 2507.07120](https://arxiv.org/html/2507.07120v1)); the search found no explicit closed-form critical context length, but that is not an exhaustive search.
+* KV quantization becoming the larger lever as context grows (weight quantization helps most at short context) is reported in
+  [QuantSpec, arXiv 2502.10424](https://arxiv.org/pdf/2502.10424), [KV4-RL, arXiv 2610.14448](https://arxiv.org/pdf/2610.14448) and
+  [KV Pareto, arXiv 2512.01953](https://arxiv.org/html/2512.01953v1). Our "KV bits move the critical context" result is therefore a known conclusion in a new closed form, not a discovery.
+* Speculative KV prefetching from CPU memory is established ([InfiniGen, OSDI 2024, arXiv 2406.19707](https://arxiv.org/html/2406.19707v1); [KVPR, arXiv 2411.17089](https://arxiv.org/html/2411.17089v2)).
+  [Where Should the KV Cache Live?, arXiv 2609.16215](https://arxiv.org/pdf/2609.16215) models speculative fetches competing with demand traffic on one link and reports results uniformly negative for prefetch;
+  [SP-MoE, arXiv 2510.10302](https://arxiv.org/pdf/2510.10302) reports prefetch failures from bandwidth contention; patents describe throttling prefetch by congestion and accuracy.
+  Our congestion finding is therefore consistent with, not new relative to, existing results. The search surfaced no paper with a queueing-based break-even accuracy, so the closed form with proofs may be a small gap.
+* A public Lean 4 formalization of a roofline or inference cost model was not found (the nearest, the Rust crate `aprender-contracts`, uses Kani). A verified decision-threshold / roofline library may be unoccupied, which is
+  an engineering contribution rather than a scientific one.
+* A 2026 study reports that at batch 1 an H100 reaches only about 27% of its analytic memory floor ([arXiv 2605.30571](https://arxiv.org/pdf/2605.30571)), the same direction as our CPU measurement (the roofline is optimistic).
+
+## Mixture-of-experts extension (2026-11-26, specification-based, nothing measured)
+`calibration/moe_model.py`, `experiments/h6_moe.py`, `tests/test_moe.py`. Architectures from the public config.json of Qwen3-30B-A3B (128 experts, top-8) and Mixtral-8x7B (8 experts, top-2); our parameter counts
+match the published sizes (30.5B / 46.7B total).
+
+* **Model.** A step with n = batch x spec tokens reads the non-expert weights once and `U(n) = E(1-(1-k/E)^n)` experts per layer (independent uniform routing: ASSUMED). Compute is n x active parameters.
+  The control is a dense twin with the same active parameters and all experts always read.
+* **Union fraction (uniform routing).** Qwen3-30B-A3B: 6% (n=1), 40% (n=8), 87% (n=32), 98% (n=64). Mixtral: 25% (n=1), 90% (n=8). The 40% for 8 positions matches the figure in the Hugging Face blog.
+* **Balance batch on H100 SXM (bf16 or fp8, same result).** Plain decode (spec 1) has no balance point at context 512 or 4096 for either model: KV reads alone exceed the compute, as for the dense models.
+  With speculative verification of 4 / 8 positions at context 512: Qwen3-30B-A3B B\* = 1,612 / 482 sequences against 163 / 49 for the dense twin (x9.9); Mixtral B\* = 331 / 148 against 90 / 40 (x3.7).
+  At context 4096 only Mixtral with 8 positions balances (B\* = 440).
+* **Why the factor is total / active parameters.** At B\* the step already touches nearly every expert (union > 99.9%), so the weight read time is that of the full model while the compute is that of the active
+  part: factor = 30.5/3.04 = 10 (Qwen), 46.7/12.75 = 3.7 (Mixtral). Tested within 12%.
+* **Skew.** With a Zipf-like popularity (approximation) the union at n=8 falls from 40% to 28%, but B\* does not move, because the union is saturated at the balance point. Skew matters only well below B\*.
+* **Capacity.** The batches above often exceed what fits next to the weights on one H100 (Qwen bf16 context 512: max 376 sequences, fp8: 1,965; Mixtral bf16 does not fit at all). So for bf16 MoE the balance point is
+  mostly unreachable on one card; it needs fp8, several cards or short contexts.
+* **Not shown:** real routers are correlated across tokens of one sequence (fewer distinct experts per step) and across layers; expert-parallel communication and load imbalance are not modelled; no measurement.

@@ -1,0 +1,448 @@
+{
+  "bf16_to_fp8_factor": 1.0,
+  "params": {
+    "Llama-3.1-70B": {
+      "matmul": 69501714432,
+      "total": 70552387584
+    },
+    "Llama-3.1-8B": {
+      "matmul": 7504658432,
+      "total": 8029995008
+    }
+  },
+  "prefill": [
+    {
+      "balance_tokens": 316,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        0.40548145298659666,
+        1.6276835511492254,
+        6.601438193765075,
+        27.7717526315171
+      ],
+      "scenario": "bf16 weights/KV, bf16 compute"
+    },
+    {
+      "balance_tokens": 316,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        0.40548145298659666,
+        1.6276835511492254,
+        6.601438193765075,
+        27.7717526315171
+      ],
+      "scenario": "fp8 weights/KV, fp8 compute"
+    },
+    {
+      "balance_tokens": 80,
+      "model": "Llama-3.1-8B",
+      "ratios_128_512_2048_8192": [
+        1.6168638848349806,
+        6.430458005824579,
+        25.164650074249632,
+        93.50719925798258
+      ],
+      "scenario": "int4 weights only, bf16 compute (dequantize)"
+    },
+    {
+      "balance_tokens": 300,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        0.42728492268786605,
+        1.713793033610226,
+        6.929295224853566,
+        28.88239363205732
+      ],
+      "scenario": "bf16 weights/KV, bf16 compute"
+    },
+    {
+      "balance_tokens": 300,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        0.42728492268786605,
+        1.713793033610226,
+        6.929295224853566,
+        28.88239363205732
+      ],
+      "scenario": "fp8 weights/KV, fp8 compute"
+    },
+    {
+      "balance_tokens": 75,
+      "model": "Llama-3.1-70B",
+      "ratios_128_512_2048_8192": [
+        1.707617388313291,
+        6.830835685232782,
+        27.32909832454352,
+        109.40237760280527
+      ],
+      "scenario": "int4 weights only, bf16 compute (dequantize)"
+    }
+  ],
+  "rows": [
+    {
+      "context": 512,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 952,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.003207245650198344,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 119,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.003499768800609585,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 14,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.005353882154545247,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 2144,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.003207245650198344,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 268,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.003499768800609585,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 33,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.005353882154545247,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 1132,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.012670803519149893,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 141,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.012760732682803158,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 17,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.013114140111549823,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 459.0644334535164,
+      "device": "H100 SXM",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.003363334428397407,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "weights do not fit"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.003558902841772538,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.005014542927801191,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 459.0644334535164,
+      "device": "H100 SXM",
+      "max_batch_fits": 112,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.003363334428397407,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* > memory"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 14,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.003558902841772538,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 1,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.005014542927801191,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 114.7661083633791,
+      "device": "H100 SXM",
+      "max_batch_fits": 266,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.013405577210494225,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* reachable"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 33,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.01384427676676925,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 SXM",
+      "max_batch_fits": 4,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.016547694551046783,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 3818.71620411817,
+      "device": "H100 NVL",
+      "max_batch_fits": 1161,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.004422026787569485,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* > memory"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 145,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.004825346441934821,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 18,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.007381726530184924,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 3799.432432432433,
+      "device": "H100 NVL",
+      "max_batch_fits": 2562,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.004423350351408925,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* > memory"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 320,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.004826790724018608,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 40,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.007383935966440589,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 954.6790510295425,
+      "device": "H100 NVL",
+      "max_batch_fits": 1340,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.01747001592417639,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* reachable"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 167,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.01759400679174023,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 20,
+      "model": "Llama-3.1-8B",
+      "ratio_b1": 0.01808127134434697,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 289.53954504578275,
+      "device": "H100 NVL",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.004637235983781993,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "weights do not fit"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.004906878180566578,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": null,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.006913858672715842,
+      "scenario": "bf16 weights/KV, bf16 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 289.4230949479801,
+      "device": "H100 NVL",
+      "max_batch_fits": 279,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.004638623962226704,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* > memory"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 34,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.0049083468660441505,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 4,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.006915928070702288,
+      "scenario": "fp8 weights/KV, fp8 compute",
+      "verdict": "B* never"
+    },
+    {
+      "context": 512,
+      "critical_batch": 72.38488626144569,
+      "device": "H100 NVL",
+      "max_batch_fits": 350,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.018483093592774995,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* reachable"
+    },
+    {
+      "context": 4096,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 43,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.019087955646114443,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    },
+    {
+      "context": 32768,
+      "critical_batch": null,
+      "device": "H100 NVL",
+      "max_batch_fits": 5,
+      "model": "Llama-3.1-70B",
+      "ratio_b1": 0.022815323975175144,
+      "scenario": "int4 weights only, bf16 compute (dequantize)",
+      "verdict": "B* never"
+    }
+  ],
+  "sources": {
+    "h100": "https://www.nvidia.com/en-us/data-center/h100/ (Product Specifications table; throughput rows footnoted 'With sparsity')",
+    "llama": "https://huggingface.co/NousResearch/Meta-Llama-3.1-8B/raw/main/config.json and .../Meta-Llama-3.1-70B/raw/main/config.json",
+    "not_obtained": "AMD MI300X page timed out twice; no MI300X figures are used. NVIDIA datasheet PDF is password protected."
+  }
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "always": 1.4535965515304885,
+    "online": 1.4256488649987902,
+    "p": 0.3,
+    "reactive": 1.4935772060788646,
+    "traffic": "Poisson",
+    "u": 0.5
+  },
+  {
+    "always": 0.9716685864898122,
+    "online": 0.9748504612307559,
+    "p": 0.6,
+    "reactive": 1.4935772060788646,
+    "traffic": "Poisson",
+    "u": 0.5
+  },
+  {
+    "always": 0.4751392702938028,
+    "online": 0.47896026692686633,
+    "p": 0.9,
+    "reactive": 1.4935772060788646,
+    "traffic": "Poisson",
+    "u": 0.5
+  },
+  {
+    "always": 2.349278564223026,
+    "online": 2.0752629588856886,
+    "p": 0.3,
+    "reactive": 2.052564857325321,
+    "traffic": "Poisson",
+    "u": 0.65
+  },
+  {
+    "always": 1.6859262500690186,
+    "online": 1.6845193566796706,
+    "p": 0.6,
+    "reactive": 2.052564857325321,
+    "traffic": "Poisson",
+    "u": 0.65
+  },
+  {
+    "always": 1.0127751179174973,
+    "online": 1.0694743640748876,
+    "p": 0.9,
+    "reactive": 2.052564857325321,
+    "traffic": "Poisson",
+    "u": 0.65
+  },
+  {
+    "always": 1.4842165731279149,
+    "online": 1.4644003696892012,
+    "p": 0.3,
+    "reactive": 1.5007702438520618,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.5
+  },
+  {
+    "always": 0.9930942471133363,
+    "online": 0.9991178956104655,
+    "p": 0.6,
+    "reactive": 1.5007702438520618,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.5
+  },
+  {
+    "always": 0.5224592962218323,
+    "online": 0.5224722496296975,
+    "p": 0.9,
+    "reactive": 1.5007702438520618,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.5
+  },
+  {
+    "always": 2.2190727399016255,
+    "online": 1.9962965340875067,
+    "p": 0.3,
+    "reactive": 2.0156413293742315,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.65
+  },
+  {
+    "always": 1.5500785860767103,
+    "online": 1.6391043208880003,
+    "p": 0.6,
+    "reactive": 2.0156413293742315,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.65
+  },
+  {
+    "always": 0.9144268728136062,
+    "online": 0.984560379769943,
+    "p": 0.9,
+    "reactive": 2.0156413293742315,
+    "traffic": "trace win 1 (smooth)",
+    "u": 0.65
+  },
+  {
+    "always": 351.93149006823506,
+    "online": 326.62254747922833,
+    "p": 0.3,
+    "reactive": 303.62462511738994,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 329.54828623210886,
+    "online": 316.336470990162,
+    "p": 0.6,
+    "reactive": 303.62462511738994,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 309.27894526742097,
+    "online": 306.1857318408233,
+    "p": 0.9,
+    "reactive": 303.62462511738994,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 594.9202853637662,
+    "online": 544.3129429672754,
+    "p": 0.3,
+    "reactive": 473.63678590769086,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.65
+  },
+  {
+    "always": 537.6774304189846,
+    "online": 512.3758438562887,
+    "p": 0.6,
+    "reactive": 473.63678590769086,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.65
+  },
+  {
+    "always": 488.9855994879035,
+    "online": 484.4496995203095,
+    "p": 0.9,
+    "reactive": 473.63678590769086,
+    "traffic": "trace win 3 (bursty)",
+    "u": 0.65
+  },
+  {
+    "always": 4016.7037579003218,
+    "online": 3868.920756506888,
+    "p": 0.3,
+    "reactive": 3738.4033371093005,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 3892.4387709252883,
+    "online": 3812.0057061796097,
+    "p": 0.6,
+    "reactive": 3738.4033371093005,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 3778.3750731486152,
+    "online": 3757.173251246571,
+    "p": 0.9,
+    "reactive": 3738.4033371093005,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.5
+  },
+  {
+    "always": 5229.023005315458,
+    "online": 5060.701172555459,
+    "p": 0.3,
+    "reactive": 4821.419411224028,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.65
+  },
+  {
+    "always": 5046.534436809648,
+    "online": 4961.752040851445,
+    "p": 0.6,
+    "reactive": 4821.419411224028,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.65
+  },
+  {
+    "always": 4873.153176510837,
+    "online": 4853.832222302557,
+    "p": 0.9,
+    "reactive": 4821.419411224028,
+    "traffic": "trace win 2 (very bursty)",
+    "u": 0.65
+  }
+]

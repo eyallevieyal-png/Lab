@@ -32,6 +32,9 @@ class MemoryHierarchy:
             for name, params in base.items()
         }
 
+    def latency_ms_for(self, tier_name: str) -> float:
+        return self.tiers[tier_name].latency_ms
+
     def bandwidth_for(self, tier_name: str) -> float:
         return self.tiers[tier_name].bandwidth_gbps
 
@@ -44,7 +47,8 @@ class MemoryHierarchy:
             raise KeyError(f"Destination tier '{dst}' is not present in memory hierarchy.")
         bandwidth = min(src_tier.bandwidth_gbps, dst_tier.bandwidth_gbps)
         gb = bytes_to_move / (1024 ** 3)
-        seconds = gb / (bandwidth / 8.0) * congestion
+        # bandwidth_gbps is in GB/s (HBM 3350, DRAM 160, ... are GB/s figures), so no division by 8
+        seconds = gb / bandwidth * congestion
         return seconds
 
     def utilization_snapshot(self) -> Dict[str, float]:
