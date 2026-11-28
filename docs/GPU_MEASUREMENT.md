@@ -28,7 +28,7 @@ Goal: replace "computed from specs" with "measured" for the roofline, decode att
    for f in glob.glob("experiments/results/measured_gpu_*.json"):
        files.download(f)
    ```
-6. Send the JSON file(s) back. They contain GPU name, timings and clocks only: no account data, no secrets.
+6. Keep the JSON file(s) (or attach them to an issue if you want a second opinion). They contain GPU name, timings and clocks only: no account data, no secrets.
 
 Notes: the free GPU can differ between sessions (T4 is typical); the script records which one it got. Run it twice at different times if you can; GPU clocks throttle and one run is one sample.
 
