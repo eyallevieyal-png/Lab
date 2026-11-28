@@ -356,7 +356,8 @@ def simulate_run(config: SimulationConfig) -> SimulationRun:
             "predicted_placement": prediction.predicted_resource,
             "prediction_confidence": prediction.confidence,
             "prediction_accuracy": prediction.accuracy,
-            "prediction_cost": prediction.cost,
+            "prediction_cost": prediction.cost,  # what the predictor would cost; charged only if the controller uses it
+            "prediction_cost_charged": prediction_charge,  # what was actually added to this controller's time
             "queue_time": chosen["queue"],
             "preparation_time": chosen["preparation"],
             "transfer_time": chosen["transfer"],

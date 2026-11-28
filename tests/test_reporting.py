@@ -13,8 +13,8 @@ def test_compare_controllers_returns_runs():
     assert {run.controller for run in runs} == {"Reactive", "Adaptive"}
 
 
-def test_generate_research_report_writes_summary():
-    report = generate_research_report("experiments/results/test_report.json")
+def test_generate_research_report_writes_summary(tmp_path):
+    report = generate_research_report(str(tmp_path / "test_report.json"))
     assert "summary" in report
     assert "controllers" in report
     assert "workloads" in report

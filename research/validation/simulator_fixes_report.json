@@ -1,0 +1,54 @@
+{
+  "module": "src.simulator",
+  "checks": [
+    {
+      "id": "D1",
+      "defect": "workloads seeded with per-process hash()",
+      "fixed_in_current_path": true,
+      "evidence": "workload stream identical under two different PYTHONHASHSEED values"
+    },
+    {
+      "id": "D2",
+      "defect": "Reactive returned the oracle's resource",
+      "fixed_in_current_path": true,
+      "evidence": "Reactive source does not reference the oracle; it differs from the oracle on 20/48 operations"
+    },
+    {
+      "id": "D3",
+      "defect": "regret was a fixed fraction, oracle had positive regret",
+      "fixed_in_current_path": true,
+      "evidence": "oracle regret is 0 on 24 ops; regret >= 0 on 72 ops of 3 other controllers"
+    },
+    {
+      "id": "D4",
+      "defect": "memory cost computed but never used",
+      "fixed_in_current_path": true,
+      "evidence": "total memory time differs by precision (fp16 163.220 vs int4 76.208 ms)"
+    },
+    {
+      "id": "D5",
+      "defect": "prediction cost never charged",
+      "fixed_in_current_path": true,
+      "evidence": "charged to Predictive (0.254 ms, included in its controller_time) and not to Reactive (0.000 ms). Note: the older field `prediction_cost` is reported for every controller even when not charged"
+    },
+    {
+      "id": "D6",
+      "defect": "prediction correct with probability == confidence (no miscalibration possible)",
+      "fixed_in_current_path": true,
+      "evidence": "expected calibration error 0.050 (offset 0) vs 0.318 (offset -0.3, overconfident)"
+    },
+    {
+      "id": "D7",
+      "defect": "seed did not change the workload",
+      "fixed_in_current_path": true,
+      "evidence": "different seeds give different operation streams"
+    },
+    {
+      "id": "D8",
+      "defect": "bandwidth divided by 8 / sizes so small transfers cost ~0",
+      "fixed_in_current_path": true,
+      "evidence": "1 GiB over HBM = 0.299 ms (no /8); typical DRAM->HBM transfer 1.57 ms (not ~0)"
+    }
+  ],
+  "all_fixed": true
+}

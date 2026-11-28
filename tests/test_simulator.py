@@ -3,8 +3,8 @@ import json
 from src.simulator import SimulationConfig, run_controlled_experiment, smoke_run
 
 
-def test_smoke_run_returns_summary():
-    data = smoke_run("experiments/results/test_smoke.json")
+def test_smoke_run_returns_summary(tmp_path):
+    data = smoke_run(str(tmp_path / "test_smoke.json"))
     assert isinstance(data["summary"], list)
     assert len(data["summary"]) >= 3
     assert all("p50" in item for item in data["summary"])
