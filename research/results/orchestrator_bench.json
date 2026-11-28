@@ -1,0 +1,1944 @@
+{
+ "metadata": {
+  "experiment_id": "EXP-ORCH-001",
+  "evidence_class": "simulated (assumed tier parameters; NOT hardware, NOT measured, no CXL hardware involved)",
+  "generated_utc": "2026-11-28T13:14:22Z",
+  "repo_head": "4852531",
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "quick": false,
+  "baseline": "lru_demand",
+  "regenerate": "python -X utf8 -m orchestrator.bench",
+  "engine": {
+   "n_sessions": 48,
+   "session_blocks": 8,
+   "block_bytes": 33554432,
+   "compute_ms": 6.0,
+   "period_ms": 14.0,
+   "requests": 1500,
+   "warmup": 100
+  },
+  "tiers": [
+   {
+    "name": "HBM",
+    "capacity_blocks": 64,
+    "read_gbps": 3350.0,
+    "latency_ms": 0.0,
+    "evidence": "spec"
+   },
+   {
+    "name": "DRAM",
+    "capacity_blocks": 192,
+    "read_gbps": 64.0,
+    "latency_ms": 0.001,
+    "evidence": "assumed"
+   },
+   {
+    "name": "CXL",
+    "capacity_blocks": 512,
+    "read_gbps": 32.0,
+    "latency_ms": 0.002,
+    "evidence": "assumed"
+   },
+   {
+    "name": "NVMe",
+    "capacity_blocks": null,
+    "read_gbps": 7.0,
+    "latency_ms": 0.1,
+    "evidence": "assumed"
+   }
+  ],
+  "scenarios": {
+   "agentic_loop": "each session is followed by a fixed successor with probability 0.85 (tool-call chains), otherwise a random jump: a first-order predictor can learn it",
+   "zipf_iid": "independent draws, Zipf(1.1) popularity: reuse exists, but the next session is not predictable beyond popularity",
+   "uniform": "independent uniform draws over all sessions: no reuse structure, any prefetch is mostly wasted",
+   "phase_shift": "a working set of 10 sessions, redrawn every 250 requests, uniform inside the phase: placement matters, prediction is weak"
+  },
+  "backgrounds": {
+   "idle link": {},
+   "background 50% on the DRAM link": {
+    "DRAM": 0.5
+   }
+  },
+  "statistics": "mean over seeds with t-based 95% CI; paired difference vs baseline on identical traces; 'significant' = CI excludes 0 (no multiple-comparison correction)",
+  "predictor": "causal first-order Markov with popularity fallback; accuracy = running share of correct top-1 predictions"
+ },
+ "cells": [
+  {
+   "scenario": "agentic_loop",
+   "background": "idle link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 13.82056414782727,
+      "ci95": 0.2314591916555977
+     },
+     "p99_ms": {
+      "mean": 29.942385839470013,
+      "ci95": 1.3595376063462914
+     },
+     "throughput_rps": {
+      "mean": 71.39802620362846,
+      "ci95": 0.3077415771129264
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.08867079889807163,
+      "ci95": 0.008302896188502204
+     },
+     "bytes_moved_gib": {
+      "mean": 330.8125,
+      "ci95": 3.0139513164263003
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 7.0100748885103155,
+      "ci95": 0.04237975856206501
+     },
+     "p99_ms": {
+      "mean": 14.672351682863336,
+      "ci95": 0.20866935982603613
+     },
+     "throughput_rps": {
+      "mean": 71.41961797356984,
+      "ci95": 0.3103070391031918
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.865461432506887,
+      "ci95": 0.00388093298636442
+     },
+     "bytes_moved_gib": {
+      "mean": 386.6375,
+      "ci95": 3.0395648465430805
+     },
+     "wasted_prefetch_gib": {
+      "mean": 47.325,
+      "ci95": 1.2868008789011567
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -6.810489259316955,
+      "ci95": 0.23087028559588343,
+      "pct": -49.27793964465359,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -15.270034156606675,
+      "ci95": 1.3435929167608054,
+      "pct": -50.99805419138556,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 7.0124710685463345,
+      "ci95": 0.03815242890692504
+     },
+     "p99_ms": {
+      "mean": 14.689511887855588,
+      "ci95": 0.2111646678070504
+     },
+     "throughput_rps": {
+      "mean": 71.42217632194533,
+      "ci95": 0.30993391718652225
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.8497245179063361,
+      "ci95": 0.004636319784260637
+     },
+     "bytes_moved_gib": {
+      "mean": 383.975,
+      "ci95": 3.081101005103746
+     },
+     "wasted_prefetch_gib": {
+      "mean": 44.9,
+      "ci95": 1.4869683731107324
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -6.808093079280937,
+      "ci95": 0.233919582922414,
+      "pct": -49.26060185720593,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -15.252873951614424,
+      "ci95": 1.3821816292947702,
+      "pct": -50.94074344439215,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 7.308002198750735,
+      "ci95": 0.08133088054119503
+     },
+     "p99_ms": {
+      "mean": 16.88899027680436,
+      "ci95": 0.7558201820294839
+     },
+     "throughput_rps": {
+      "mean": 71.42025284763486,
+      "ci95": 0.3105102754451578
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.8330234159779615,
+      "ci95": 0.006868144980319038
+     },
+     "bytes_moved_gib": {
+      "mean": 383.3125,
+      "ci95": 2.9625949617178056
+     },
+     "wasted_prefetch_gib": {
+      "mean": 44.1875,
+      "ci95": 1.2799375925209615
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -6.5125619490765345,
+      "ci95": 0.20674187861375795,
+      "pct": -47.12225839276159,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -13.053395562665651,
+      "ci95": 1.3202216037646768,
+      "pct": -43.59504159972009,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 7.3256464610681125,
+      "ci95": 0.08772986067519496
+     },
+     "p99_ms": {
+      "mean": 17.580011872122487,
+      "ci95": 1.1209022447801114
+     },
+     "throughput_rps": {
+      "mean": 71.42026224135438,
+      "ci95": 0.31000292550291203
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.826751893939394,
+      "ci95": 0.006845867996471175
+     },
+     "bytes_moved_gib": {
+      "mean": 372.971875,
+      "ci95": 3.111885336399153
+     },
+     "wasted_prefetch_gib": {
+      "mean": 46.58125,
+      "ci95": 1.230523424557227
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -6.494917686759157,
+      "ci95": 0.19280370291233254,
+      "pct": -46.994591662744995,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -12.362373967347526,
+      "ci95": 1.2124023795300793,
+      "pct": -41.2872041447394,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.027122204386819,
+      "ci95": 0.002518024671394943
+     },
+     "p99_ms": {
+      "mean": 7.030670360530439,
+      "ci95": 0.05968485656753718
+     },
+     "throughput_rps": {
+      "mean": 71.4244418005995,
+      "ci95": 0.30987607164231196
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 330.8125,
+      "ci95": 3.0139513164263003
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -7.793441943440452,
+      "ci95": 0.22966170504801858,
+      "pct": -56.39018682653167,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -22.911715478939573,
+      "ci95": 1.3315470940094762,
+      "pct": -76.51933817757896,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "agentic_loop",
+   "background": "background 50% on the DRAM link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 24.477874022725235,
+      "ci95": 2.31150527558623
+     },
+     "p99_ms": {
+      "mean": 80.60598561725536,
+      "ci95": 15.143625999134127
+     },
+     "throughput_rps": {
+      "mean": 71.372747745437,
+      "ci95": 0.315775784349076
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.08867079889807163,
+      "ci95": 0.008302896188502204
+     },
+     "bytes_moved_gib": {
+      "mean": 330.8125,
+      "ci95": 3.0139513164263003
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 7.85655179941587,
+      "ci95": 0.08071715478345538
+     },
+     "p99_ms": {
+      "mean": 24.29489957527512,
+      "ci95": 1.5565623986627617
+     },
+     "throughput_rps": {
+      "mean": 71.41497623840192,
+      "ci95": 0.3125653620064344
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.865461432506887,
+      "ci95": 0.00388093298636442
+     },
+     "bytes_moved_gib": {
+      "mean": 386.6375,
+      "ci95": 3.0395648465430805
+     },
+     "wasted_prefetch_gib": {
+      "mean": 47.325,
+      "ci95": 1.2868008789011567
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -16.621322223309367,
+      "ci95": 2.2920766163402853,
+      "pct": -67.9034552097055,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -56.31108604198023,
+      "ci95": 15.14324120660753,
+      "pct": -69.85968301332413,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 7.886453777977674,
+      "ci95": 0.11635778020739235
+     },
+     "p99_ms": {
+      "mean": 25.512164695486128,
+      "ci95": 2.5295651617666177
+     },
+     "throughput_rps": {
+      "mean": 71.41703525881424,
+      "ci95": 0.312009384015012
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.8497245179063361,
+      "ci95": 0.004636319784260637
+     },
+     "bytes_moved_gib": {
+      "mean": 383.975,
+      "ci95": 3.081101005103746
+     },
+     "wasted_prefetch_gib": {
+      "mean": 44.9,
+      "ci95": 1.4869683731107324
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -16.59142024474756,
+      "ci95": 2.308792576726535,
+      "pct": -67.78129599549413,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -55.09382092176922,
+      "ci95": 15.413241853669907,
+      "pct": -68.34954066981257,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 10.130468550984002,
+      "ci95": 0.3077110328038272
+     },
+     "p99_ms": {
+      "mean": 38.592566223636275,
+      "ci95": 3.6953280902529495
+     },
+     "throughput_rps": {
+      "mean": 71.40943066253014,
+      "ci95": 0.31446029268446646
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.6760330578512397,
+      "ci95": 0.01296782876614076
+     },
+     "bytes_moved_gib": {
+      "mean": 371.025,
+      "ci95": 2.7941384968958727
+     },
+     "wasted_prefetch_gib": {
+      "mean": 34.0125,
+      "ci95": 1.279149262831988
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -14.347405471741231,
+      "ci95": 2.1442576725800846,
+      "pct": -58.61377282365745,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -42.013419393619074,
+      "ci95": 14.764208092606847,
+      "pct": -52.12195976749554,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 9.831756638137058,
+      "ci95": 0.24412943283074473
+     },
+     "p99_ms": {
+      "mean": 36.986051892199086,
+      "ci95": 2.951369270253216
+     },
+     "throughput_rps": {
+      "mean": 71.41352245225701,
+      "ci95": 0.3133279052229441
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.68897641184573,
+      "ci95": 0.011003169136218469
+     },
+     "bytes_moved_gib": {
+      "mean": 362.1375,
+      "ci95": 3.3088724547783883
+     },
+     "wasted_prefetch_gib": {
+      "mean": 36.934375,
+      "ci95": 1.436987291243672
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -14.646117384588177,
+      "ci95": 2.198689378841562,
+      "pct": -59.83410720633146,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -43.61993372505626,
+      "ci95": 14.676539032410163,
+      "pct": -54.115005717042585,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.3498157511764735,
+      "ci95": 0.05217264452893347
+     },
+     "p99_ms": {
+      "mean": 15.753464187366921,
+      "ci95": 1.458377257796097
+     },
+     "throughput_rps": {
+      "mean": 71.42335033122616,
+      "ci95": 0.31016038797298606
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 330.8125,
+      "ci95": 3.0139513164263003
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -18.12805827154876,
+      "ci95": 2.291548047588255,
+      "pct": -74.05895730453832,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -64.85252142988843,
+      "ci95": 14.908883607592864,
+      "pct": -80.45621045790602,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "zipf_iid",
+   "background": "idle link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 9.45665021695769,
+      "ci95": 0.10237436917879586
+     },
+     "p99_ms": {
+      "mean": 20.483785034235098,
+      "ci95": 0.5618792986223984
+     },
+     "throughput_rps": {
+      "mean": 71.6291387182155,
+      "ci95": 0.31428659128543934
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.5293537262128891,
+      "ci95": 0.009254951755333009
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 9.347899634007817,
+      "ci95": 0.07987498406074282
+     },
+     "p99_ms": {
+      "mean": 20.511639269682178,
+      "ci95": 0.4444686446990976
+     },
+     "throughput_rps": {
+      "mean": 71.63038887303996,
+      "ci95": 0.3155566268014684
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.5439195101234455,
+      "ci95": 0.006984879389440605
+     },
+     "bytes_moved_gib": {
+      "mean": 209.25,
+      "ci95": 4.802271481316228
+     },
+     "wasted_prefetch_gib": {
+      "mean": 26.45,
+      "ci95": 2.175573102459381
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -0.10875058294987375,
+      "ci95": 0.06911053205555022,
+      "pct": -1.1499905405707183,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0278542354470801,
+      "ci95": 0.5484478006478899,
+      "pct": 0.13598187737533163,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 9.454614574117723,
+      "ci95": 0.10181080864583746
+     },
+     "p99_ms": {
+      "mean": 20.45059892411218,
+      "ci95": 0.5656871019228896
+     },
+     "throughput_rps": {
+      "mean": 71.6291387182155,
+      "ci95": 0.31428659128543934
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.529388161474597,
+      "ci95": 0.009250728506414533
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -0.0020356428399666447,
+      "ci95": 0.004260600464050188,
+      "pct": -0.02152604562148576,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -0.03318611012291513,
+      "ci95": 0.06945852848726135,
+      "pct": -0.16201161097643962,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 9.47732151816286,
+      "ci95": 0.10672760322040119
+     },
+     "p99_ms": {
+      "mean": 20.301582723803904,
+      "ci95": 0.5245449764514781
+     },
+     "throughput_rps": {
+      "mean": 71.62511414677908,
+      "ci95": 0.31389404738045684
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.530283549377274,
+      "ci95": 0.009397597094140644
+     },
+     "bytes_moved_gib": {
+      "mean": 174.9125,
+      "ci95": 3.0409393735343544
+     },
+     "wasted_prefetch_gib": {
+      "mean": 2.7625,
+      "ci95": 0.643624367218413
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.02067130120516989,
+      "ci95": 0.05648220419632148,
+      "pct": 0.21859010041528296,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -0.18220231043119384,
+      "ci95": 0.4121421833881855,
+      "pct": -0.8894953258232023,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 8.781160078464362,
+      "ci95": 0.09470480827729671
+     },
+     "p99_ms": {
+      "mean": 18.4699019631773,
+      "ci95": 0.5534928937621075
+     },
+     "throughput_rps": {
+      "mean": 71.63266949028447,
+      "ci95": 0.31263496717962563
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.6173332366396872,
+      "ci95": 0.0074728172609627485
+     },
+     "bytes_moved_gib": {
+      "mean": 141.3125,
+      "ci95": 2.445694822289705
+     },
+     "wasted_prefetch_gib": {
+      "mean": 2.325,
+      "ci95": 0.4681629527163086
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -0.6754901384933285,
+      "ci95": 0.07405986008213201,
+      "pct": -7.143017062025175,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -2.0138830710577964,
+      "ci95": 0.5747887570493488,
+      "pct": -9.831596395353396,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.013426310872078,
+      "ci95": 0.0013496624999068687
+     },
+     "p99_ms": {
+      "mean": 6.666798989463723,
+      "ci95": 0.09706442352745316
+     },
+     "throughput_rps": {
+      "mean": 71.64661758817115,
+      "ci95": 0.3133371881857436
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -3.443223906085612,
+      "ci95": 0.10152881841534939,
+      "pct": -36.410608694305026,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -13.816986044771374,
+      "ci95": 0.564809907734069,
+      "pct": -67.45328571686666,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "zipf_iid",
+   "background": "background 50% on the DRAM link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 10.999625268570558,
+      "ci95": 0.15575698540457364
+     },
+     "p99_ms": {
+      "mean": 32.21158765357277,
+      "ci95": 2.252882715800877
+     },
+     "throughput_rps": {
+      "mean": 71.62187324892022,
+      "ci95": 0.31495346812958536
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.5293537262128891,
+      "ci95": 0.009254951755333009
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 11.053477618931238,
+      "ci95": 0.1773671612276678
+     },
+     "p99_ms": {
+      "mean": 33.788240431530674,
+      "ci95": 2.8473072739354883
+     },
+     "throughput_rps": {
+      "mean": 71.62770292258503,
+      "ci95": 0.3160143731659236
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.5439195101234455,
+      "ci95": 0.006984879389440605
+     },
+     "bytes_moved_gib": {
+      "mean": 209.25,
+      "ci95": 4.802271481316228
+     },
+     "wasted_prefetch_gib": {
+      "mean": 26.45,
+      "ci95": 2.175573102459381
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.05385235036068057,
+      "ci95": 0.1204305368836847,
+      "pct": 0.4895834998538898,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 1.5766527779579065,
+      "ci95": 2.7267344464098393,
+      "pct": 4.894675776041828,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 10.998186724524365,
+      "ci95": 0.15557225073439793
+     },
+     "p99_ms": {
+      "mean": 32.21158765357277,
+      "ci95": 2.252882715800877
+     },
+     "throughput_rps": {
+      "mean": 71.62187324892022,
+      "ci95": 0.31495346812958536
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.529388161474597,
+      "ci95": 0.009250728506414533
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -0.0014385440461921028,
+      "ci95": 0.0030108726886800717,
+      "pct": -0.013078118672846816,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 10.999625268570558,
+      "ci95": 0.15575698540457364
+     },
+     "p99_ms": {
+      "mean": 32.21158765357277,
+      "ci95": 2.252882715800877
+     },
+     "throughput_rps": {
+      "mean": 71.62187324892022,
+      "ci95": 0.31495346812958536
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.5293537262128891,
+      "ci95": 0.009254951755333009
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 9.837403856746564,
+      "ci95": 0.13951748004795048
+     },
+     "p99_ms": {
+      "mean": 27.514497279936403,
+      "ci95": 1.840000100766504
+     },
+     "throughput_rps": {
+      "mean": 71.6290936749851,
+      "ci95": 0.31373648293902495
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.6177463649824909,
+      "ci95": 0.007705750213445889
+     },
+     "bytes_moved_gib": {
+      "mean": 138.7625,
+      "ci95": 2.793513112132508
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -1.1622214118239933,
+      "ci95": 0.07542338946357087,
+      "pct": -10.566009145282713,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -4.697090373636366,
+      "ci95": 2.072072931532593,
+      "pct": -14.581989637245915,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.125861712188731,
+      "ci95": 0.012814049884350179
+     },
+     "p99_ms": {
+      "mean": 10.18965935581208,
+      "ci95": 0.5108484608370587
+     },
+     "throughput_rps": {
+      "mean": 71.64661758817115,
+      "ci95": 0.3133371881857436
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 170.85,
+      "ci95": 3.3543892912084132
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -4.873763556381826,
+      "ci95": 0.15211469730903462,
+      "pct": -44.30845085520982,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -22.021928297760688,
+      "ci95": 2.1686072429154692,
+      "pct": -68.36647896589508,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "uniform",
+   "background": "idle link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 12.576843361670672,
+      "ci95": 0.08868169993005447
+     },
+     "p99_ms": {
+      "mean": 25.138123984628656,
+      "ci95": 0.6715197601470636
+     },
+     "throughput_rps": {
+      "mean": 71.30779329147298,
+      "ci95": 0.2950595074470902
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 12.965878270271284,
+      "ci95": 0.11983233345807047
+     },
+     "p99_ms": {
+      "mean": 29.58133736671625,
+      "ci95": 1.6647482582655047
+     },
+     "throughput_rps": {
+      "mean": 71.3050728225511,
+      "ci95": 0.2968238752397851
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.17300275482093663,
+      "ci95": 0.005554865333713497
+     },
+     "bytes_moved_gib": {
+      "mean": 569.725,
+      "ci95": 4.416151035400296
+     },
+     "wasted_prefetch_gib": {
+      "mean": 242.775,
+      "ci95": 3.872329106228032
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.3890349086006114,
+      "ci95": 0.09871043458496012,
+      "pct": 3.0932635273667994,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 4.4432133820875945,
+      "ci95": 1.7473786024945595,
+      "pct": 17.67519877300514,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 12.576843361670672,
+      "ci95": 0.08868169993005447
+     },
+     "p99_ms": {
+      "mean": 25.138123984628656,
+      "ci95": 0.6715197601470636
+     },
+     "throughput_rps": {
+      "mean": 71.30779329147298,
+      "ci95": 0.2950595074470902
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 12.576843361670672,
+      "ci95": 0.08868169993005447
+     },
+     "p99_ms": {
+      "mean": 25.138123984628656,
+      "ci95": 0.6715197601470636
+     },
+     "throughput_rps": {
+      "mean": 71.30779329147298,
+      "ci95": 0.2950595074470902
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 12.703222319105567,
+      "ci95": 0.14777759337507823
+     },
+     "p99_ms": {
+      "mean": 26.527688881746553,
+      "ci95": 1.3352177815304762
+     },
+     "throughput_rps": {
+      "mean": 71.30574368629382,
+      "ci95": 0.2962061154879386
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.17434573002754822,
+      "ci95": 0.006251137214891755
+     },
+     "bytes_moved_gib": {
+      "mean": 299.7125,
+      "ci95": 2.2691628090057074
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.12637895743489508,
+      "ci95": 0.14419889789354876,
+      "pct": 1.0048543485883668,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 1.3895648971178958,
+      "ci95": 1.4795939342198487,
+      "pct": 5.527719164594703,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.023661084762528,
+      "ci95": 0.0019705307943995863
+     },
+     "p99_ms": {
+      "mean": 6.970042843272336,
+      "ci95": 0.050767442979117366
+     },
+     "throughput_rps": {
+      "mean": 71.32704847273251,
+      "ci95": 0.29708987186788377
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -6.553182276908144,
+      "ci95": 0.08813455367204757,
+      "pct": -52.10514346453336,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -18.16808114135632,
+      "ci95": 0.6557602668054018,
+      "pct": -72.27301907041932,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "uniform",
+   "background": "background 50% on the DRAM link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 17.53505377064048,
+      "ci95": 0.4473110325454227
+     },
+     "p99_ms": {
+      "mean": 50.686464754830766,
+      "ci95": 3.7468859714123854
+     },
+     "throughput_rps": {
+      "mean": 71.29359776943826,
+      "ci95": 0.2942346636234507
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 28.812038666881044,
+      "ci95": 2.7868563514466045
+     },
+     "p99_ms": {
+      "mean": 100.98672997242976,
+      "ci95": 14.720651491312092
+     },
+     "throughput_rps": {
+      "mean": 71.278804869552,
+      "ci95": 0.29870919832317866
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.17300275482093663,
+      "ci95": 0.005554865333713497
+     },
+     "bytes_moved_gib": {
+      "mean": 569.725,
+      "ci95": 4.416151035400296
+     },
+     "wasted_prefetch_gib": {
+      "mean": 242.775,
+      "ci95": 3.872329106228032
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 11.276984896240565,
+      "ci95": 2.5522126069308784,
+      "pct": 64.31109390221542,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 50.300265217599,
+      "ci95": 13.733897434403735,
+      "pct": 99.2380617999306,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 17.53505377064048,
+      "ci95": 0.4473110325454227
+     },
+     "p99_ms": {
+      "mean": 50.686464754830766,
+      "ci95": 3.7468859714123854
+     },
+     "throughput_rps": {
+      "mean": 71.29359776943826,
+      "ci95": 0.2942346636234507
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 17.53505377064048,
+      "ci95": 0.4473110325454227
+     },
+     "p99_ms": {
+      "mean": 50.686464754830766,
+      "ci95": 3.7468859714123854
+     },
+     "throughput_rps": {
+      "mean": 71.29359776943826,
+      "ci95": 0.2942346636234507
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.1746556473829201,
+      "ci95": 0.0030745615425319286
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 18.062436416436643,
+      "ci95": 0.6940039984209375
+     },
+     "p99_ms": {
+      "mean": 56.31788461668923,
+      "ci95": 5.928148378082771
+     },
+     "throughput_rps": {
+      "mean": 71.28859446046879,
+      "ci95": 0.2975771392331213
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.17434573002754822,
+      "ci95": 0.006251137214891755
+     },
+     "bytes_moved_gib": {
+      "mean": 299.7125,
+      "ci95": 2.2691628090057074
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.5273826457961613,
+      "ci95": 0.4796789959304286,
+      "pct": 3.0075906962953005,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 5.6314198618584665,
+      "ci95": 4.936067279369036,
+      "pct": 11.110303093927564,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.299981503382134,
+      "ci95": 0.04355741679391165
+     },
+     "p99_ms": {
+      "mean": 14.576803566957391,
+      "ci95": 1.2819175220643053
+     },
+     "throughput_rps": {
+      "mean": 71.32690189260572,
+      "ci95": 0.2970507210789904
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 299.6,
+      "ci95": 1.1160658399390904
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -11.235072267258348,
+      "ci95": 0.42054118405091007,
+      "pct": -64.07207194351237,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -36.10966118787337,
+      "ci95": 3.198434451434717,
+      "pct": -71.24123049917755,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "phase_shift",
+   "background": "idle link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 7.0519829280518,
+      "ci95": 0.038323083884472545
+     },
+     "p99_ms": {
+      "mean": 13.984377600009612,
+      "ci95": 0.6053424765703153
+     },
+     "throughput_rps": {
+      "mean": 71.44992381199557,
+      "ci95": 0.288510420925426
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989632248236613,
+      "ci95": 0.0034268325906746024
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 7.506882803406176,
+      "ci95": 0.07374124368893016
+     },
+     "p99_ms": {
+      "mean": 14.73265688690526,
+      "ci95": 0.4805920032407702
+     },
+     "throughput_rps": {
+      "mean": 71.44589373009158,
+      "ci95": 0.28611637720751903
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7234457001208029,
+      "ci95": 0.008802221042024416
+     },
+     "bytes_moved_gib": {
+      "mean": 178.275,
+      "ci95": 8.145513870479729
+     },
+     "wasted_prefetch_gib": {
+      "mean": 49.375,
+      "ci95": 4.665673715894714
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.4548998753543773,
+      "ci95": 0.06063308955918349,
+      "pct": 6.450666145898474,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.7482792868956494,
+      "ci95": 0.6516632110124545,
+      "pct": 5.350822956147402,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 7.0519829280518,
+      "ci95": 0.038323083884472545
+     },
+     "p99_ms": {
+      "mean": 13.984377600009612,
+      "ci95": 0.6053424765703153
+     },
+     "throughput_rps": {
+      "mean": 71.44992381199557,
+      "ci95": 0.288510420925426
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989632248236613,
+      "ci95": 0.0034268325906746024
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 7.0519829280518,
+      "ci95": 0.038323083884472545
+     },
+     "p99_ms": {
+      "mean": 13.984377600009612,
+      "ci95": 0.6053424765703153
+     },
+     "throughput_rps": {
+      "mean": 71.44992381199557,
+      "ci95": 0.288510420925426
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989290016888223,
+      "ci95": 0.0034437492317923785
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6375,
+      "ci95": 1.2802752995058018
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0125,
+      "ci95": 0.026162499999999998
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 8.167085281977648,
+      "ci95": 0.08057813319728781
+     },
+     "p99_ms": {
+      "mean": 20.483093560289728,
+      "ci95": 0.4992246864427043
+     },
+     "throughput_rps": {
+      "mean": 71.45347042405345,
+      "ci95": 0.2868541550189274
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7721932482343323,
+      "ci95": 0.004321854079361882
+     },
+     "bytes_moved_gib": {
+      "mean": 83.4,
+      "ci95": 1.5836418637116156
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 1.11510235392585,
+      "ci95": 0.0989545059410825,
+      "pct": 15.812607110691223,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 6.498715960280117,
+      "ci95": 0.7383803876315301,
+      "pct": 46.4712563273152,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.001714922395061,
+      "ci95": 0.0006494304323515388
+     },
+     "p99_ms": {
+      "mean": 6.0,
+      "ci95": 0.0
+     },
+     "throughput_rps": {
+      "mean": 71.45431654865062,
+      "ci95": 0.28676008069422887
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -1.0502680056567382,
+      "ci95": 0.037832359801944056,
+      "pct": -14.89322955503649,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -7.984377600009611,
+      "ci95": 0.6053424765703153,
+      "pct": -57.0949800440466,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  },
+  {
+   "scenario": "phase_shift",
+   "background": "background 50% on the DRAM link",
+   "policies": {
+    "lru_demand": {
+     "mean_latency_ms": {
+      "mean": 7.731088466616963,
+      "ci95": 0.06549935614018323
+     },
+     "p99_ms": {
+      "mean": 21.52150311807866,
+      "ci95": 1.1452017344387075
+     },
+     "throughput_rps": {
+      "mean": 71.44898877713698,
+      "ci95": 0.2886556487464808
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989632248236613,
+      "ci95": 0.0034268325906746024
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     }
+    },
+    "always_prefetch": {
+     "mean_latency_ms": {
+      "mean": 9.359070410516143,
+      "ci95": 0.48385622147265256
+     },
+     "p99_ms": {
+      "mean": 38.252091808654995,
+      "ci95": 8.873684488743342
+     },
+     "throughput_rps": {
+      "mean": 71.44210629836643,
+      "ci95": 0.2837477706840686
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7234457001208029,
+      "ci95": 0.008802221042024416
+     },
+     "bytes_moved_gib": {
+      "mean": 178.275,
+      "ci95": 8.145513870479729
+     },
+     "wasted_prefetch_gib": {
+      "mean": 49.375,
+      "ci95": 4.665673715894714
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 1.6279819438991805,
+      "ci95": 0.48055068769352055,
+      "pct": 21.057603349500503,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 16.730588690576337,
+      "ci95": 8.800858082433704,
+      "pct": 77.73894136846873,
+      "significant": true,
+      "lower_is_better": true
+     }
+    },
+    "static_threshold": {
+     "mean_latency_ms": {
+      "mean": 7.731088466616963,
+      "ci95": 0.06549935614018323
+     },
+     "p99_ms": {
+      "mean": 21.52150311807866,
+      "ci95": 1.1452017344387075
+     },
+     "throughput_rps": {
+      "mean": 71.44898877713698,
+      "ci95": 0.2886556487464808
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989632248236613,
+      "ci95": 0.0034268325906746024
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive_gate": {
+     "mean_latency_ms": {
+      "mean": 7.731088466616963,
+      "ci95": 0.06549935614018323
+     },
+     "p99_ms": {
+      "mean": 21.52150311807866,
+      "ci95": 1.1452017344387075
+     },
+     "throughput_rps": {
+      "mean": 71.44898877713698,
+      "ci95": 0.2886556487464808
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7989632248236613,
+      "ci95": 0.0034268325906746024
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.0,
+      "ci95": 0.0,
+      "pct": 0.0,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "adaptive": {
+     "mean_latency_ms": {
+      "mean": 8.423378682303843,
+      "ci95": 0.06805749968807426
+     },
+     "p99_ms": {
+      "mean": 21.685590549341395,
+      "ci95": 0.5810793384213733
+     },
+     "throughput_rps": {
+      "mean": 71.45277928443761,
+      "ci95": 0.28690190105714725
+     },
+     "hbm_block_hit_rate": {
+      "mean": 0.7721932482343323,
+      "ci95": 0.004321854079361882
+     },
+     "bytes_moved_gib": {
+      "mean": 83.4,
+      "ci95": 1.5836418637116156
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": 0.6922902156868791,
+      "ci95": 0.07509548989123663,
+      "pct": 8.954628040750096,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": 0.16408743126273748,
+      "ci95": 1.2519955486093304,
+      "pct": 0.7624348093275116,
+      "significant": false,
+      "lower_is_better": true
+     }
+    },
+    "oracle_prefetch": {
+     "mean_latency_ms": {
+      "mean": 6.059499005896258,
+      "ci95": 0.009878538244331613
+     },
+     "p99_ms": {
+      "mean": 7.702504309840753,
+      "ci95": 0.3473887297349303
+     },
+     "throughput_rps": {
+      "mean": 71.45431654865062,
+      "ci95": 0.28676008069422887
+     },
+     "hbm_block_hit_rate": {
+      "mean": 1.0,
+      "ci95": 0.0
+     },
+     "bytes_moved_gib": {
+      "mean": 73.6,
+      "ci95": 1.2615243436435393
+     },
+     "wasted_prefetch_gib": {
+      "mean": 0.0,
+      "ci95": 0.0
+     },
+     "paired_vs_lru_demand_mean_latency_ms": {
+      "diff_mean": -1.6715894607207058,
+      "ci95": 0.06129685131316971,
+      "pct": -21.62165738936596,
+      "significant": true,
+      "lower_is_better": true
+     },
+     "paired_vs_lru_demand_p99_ms": {
+      "diff_mean": -13.818998808237904,
+      "ci95": 1.0125047263448352,
+      "pct": -64.2101935558096,
+      "significant": true,
+      "lower_is_better": true
+     }
+    }
+   }
+  }
+ ]
+}
