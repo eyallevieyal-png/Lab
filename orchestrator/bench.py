@@ -97,6 +97,8 @@ def main(argv=None) -> int:
             "predictor": "causal first-order Markov with popularity fallback; accuracy = running share of correct top-1 predictions",
         },
         "cells": cells,
+        "raw_rows": [{k: r[k] for k in ("scenario", "bg_name", "policy", "seed", "mean_latency_ms", "p50_ms", "p99_ms", "mean_stall_ms", "throughput_rps", "hbm_block_hit_rate",
+                                         "bytes_moved_gib", "prefetch_gib", "wasted_prefetch_gib", "prefetches_issued", "predictor_accuracy")} for r in raw],
     }
     out = os.path.join(ROOT, "research", "results", "orchestrator_bench" + ("_quick" if args.quick else "") + ".json")
     os.makedirs(os.path.dirname(out), exist_ok=True)

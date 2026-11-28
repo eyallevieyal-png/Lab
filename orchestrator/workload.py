@@ -19,6 +19,10 @@ DESCRIPTION = {
 
 def make_trace(scenario: str, n_sessions: int, n_requests: int, seed: int) -> List[int]:
     rng = random.Random(f"trace|{scenario}|{seed}")
+    p_follow = 0.85
+    if scenario.startswith("agentic_loop@"):          # e.g. "agentic_loop@0.6": probability of following the fixed successor (controls predictor accuracy)
+        p_follow = float(scenario.split("@", 1)[1])
+        scenario = "agentic_loop"
     if scenario == "agentic_loop":
         order = list(range(n_sessions))
         rng.shuffle(order)
@@ -26,7 +30,7 @@ def make_trace(scenario: str, n_sessions: int, n_requests: int, seed: int) -> Li
         s, out = rng.randrange(n_sessions), []
         for _ in range(n_requests):
             out.append(s)
-            s = succ[s] if rng.random() < 0.85 else rng.randrange(n_sessions)
+            s = succ[s] if rng.random() < p_follow else rng.randrange(n_sessions)
         return out
     if scenario == "zipf_iid":
         w = [1.0 / (k + 1) ** 1.1 for k in range(n_sessions)]

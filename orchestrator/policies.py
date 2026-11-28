@@ -4,7 +4,9 @@
   always_prefetch    LRU + prefetch the predictor's top-1 every request
   static_threshold   LRU + prefetch when measured predictor accuracy > 0.5 (a fixed rule)
   adaptive_gate      LRU + prefetch only when accuracy exceeds the congestion-aware H13 break-even for the CURRENT link load and queue (H17 candidate)
+  adaptive_gate_v2   the same gate with the two defects found by the H17 diagnosis removed (see its docstring)
   adaptive           adaptive_gate + reuse-score eviction and demotion placement (H16 + H17 candidate)
+  adaptive_v2        adaptive_gate_v2 + reuse-score eviction only (demotion rule dropped after the H16 ablation)
   oracle_prefetch    clairvoyant UPPER BOUND: prefetches the true next session. Not realisable; shown only to bound what any predictor could achieve.
 """
 from __future__ import annotations
@@ -93,6 +95,29 @@ class AdaptiveGate(_PrefetchBase):
         return c if ctx.pred_accuracy > thr + self.margin else None
 
 
+class AdaptiveGateV2(AdaptiveGate):
+    """The gate after the H17 diagnosis (experiments/h17_gate_diagnosis2.py): two changes to AdaptiveGate, nothing else.
+    1. `lead` and `period` are expressed in transfer times of a FIXED reference link (the whole session over DRAM), not of the slowest source tier: the original threshold jumped
+       between about 0.22 and 0.64 depending on where the missing blocks sat, and skipped prefetches exactly when a miss would cost most.
+    2. no queue-length veto: a long queue makes a miss more expensive too, so skipping a prefetch then guarantees the demand fetch waits behind the same queue.
+    Designed while looking at seeds 100-119; confirmed on held-out seeds 0-19 (experiments/results/h17_accuracy_sweep_confirm.json): in medium-accuracy / heavy-load cells it beats
+    every static threshold, it ties in medium load, and it still loses to a static threshold when the predictor is accurate (about 0.7) at load 0.5. Not a general result."""
+    name = "adaptive_gate_v2"
+    max_queue_tx = float("inf")
+
+    def prefetch(self, ctx, missing_by_tier, est):
+        c = self._candidate(ctx)
+        need = missing_by_tier.get(c, {}) if c is not None else {}
+        if not need:
+            return None
+        tier = max(need, key=lambda t: est.stream_ms(t, need[t]))
+        u = round(min(0.95, ctx.util[tier]) * 20) / 20
+        t_ref = ctx.extra["session_blocks"] * est.stream_ms("DRAM", ctx.extra["block_bytes"])   # a whole session fetched block by block over the reference link
+        lead = period = round(max(ctx.mean_gap_ms, 1e-6) / t_ref * 4) / 4
+        thr = _breakeven(u, self.gamma, lead, period)
+        return c if thr is not None and ctx.pred_accuracy > thr + self.margin else None
+
+
 class Adaptive(AdaptiveGate):
     """Adds placement: evict and demote by reuse score x refetch cost instead of recency alone."""
     name = "adaptive"
@@ -117,6 +142,16 @@ class Adaptive(AdaptiveGate):
         return next(t for t in order if free[t] > 0 or t == "NVMe")
 
 
+class AdaptiveV2(AdaptiveGateV2):
+    """AdaptiveGateV2 plus reuse-score EVICTION from HBM only. The cold-data demotion rule of `Adaptive` is dropped (waterfall demotion, LRU in the lower tiers):
+    experiments/h16_decay_sweep.py and its ablation showed that rule, not the eviction, causes the phase_shift regression (demote-only reproduces it, evict-only does not),
+    and that the combination is worse than either part. Designed on seeds 100-119; judged on the benchmark seeds 0-19."""
+    name = "adaptive_v2"
+
+    def hbm_victim(self, lru_order, ctx):
+        return min(enumerate(lru_order), key=lambda ib: (Adaptive._score(ctx, ib[1]), ib[0]))[1]
+
+
 class OraclePrefetch(Policy):
     name = "oracle_prefetch"
     clairvoyant = True
@@ -126,4 +161,4 @@ class OraclePrefetch(Policy):
         return h if h is not None and h != ctx.session else None
 
 
-ALL_POLICIES = {p.name: p for p in (LRUDemand, AlwaysPrefetch, StaticThreshold, AdaptiveGate, Adaptive, OraclePrefetch)}
+ALL_POLICIES = {p.name: p for p in (LRUDemand, AlwaysPrefetch, StaticThreshold, AdaptiveGate, AdaptiveGateV2, Adaptive, AdaptiveV2, OraclePrefetch)}

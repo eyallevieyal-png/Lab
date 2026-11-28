@@ -7,7 +7,7 @@ from __future__ import annotations
 import html
 import os
 
-COLORS = {"lru_demand": "#6b7280", "always_prefetch": "#E69F00", "static_threshold": "#56B4E9", "adaptive_gate": "#0072B2", "adaptive": "#009E73", "oracle_prefetch": "#CC79A7"}
+COLORS = {"lru_demand": "#6b7280", "always_prefetch": "#E69F00", "static_threshold": "#56B4E9", "adaptive_gate": "#0072B2", "adaptive_gate_v2": "#F0E442", "adaptive": "#009E73", "adaptive_v2": "#D55E00", "oracle_prefetch": "#CC79A7"}
 NOTE = {"oracle_prefetch": "upper bound (clairvoyant)", "lru_demand": "baseline"}
 
 

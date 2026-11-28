@@ -18,6 +18,7 @@ class MarkovPredictor:
         self.pop: Dict[int, int] = defaultdict(int)
         self.prev: Optional[int] = None
         self.last_pred: Optional[int] = None
+        self.last_p = 0.0            # the model's own probability for the pending prediction
         self.accuracy = 0.0          # running share of correct top-1 predictions (what a policy may use as p_hat)
         self.n = 0
         self.alpha, self.ewma = alpha, ewma
@@ -46,7 +47,7 @@ class MarkovPredictor:
 
     def make_prediction(self, cur: int) -> Tuple[Optional[int], float]:
         p = self.predict(cur)
-        self.last_pred = p[0]
+        self.last_pred, self.last_p = p[0], p[1]
         return p
 
 

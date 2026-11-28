@@ -97,11 +97,12 @@ class Engine:
         return done
 
     def _ctx(self, now: float, s: int, gap: float, hint: int | None) -> Context:
-        p, pm = self.pred.make_prediction(s) if self.pred.last_pred is None else (self.pred.last_pred, 0.0)
+        p, pm = self.pred.make_prediction(s) if self.pred.last_pred is None else (self.pred.last_pred, self.pred.last_p)
         return Context(now=now, session=s, util={t: self.backend.utilization(t, now, foreign_only=True) for t in LOWER},
                        queue_ms={t: self.backend.queue_ms(t, now) for t in LOWER}, pred=p, pred_p_model=pm,
                        pred_accuracy=self.pred.accuracy, mean_gap_ms=gap, access_score=self.score,
-                       future_hint=hint if self.policy.clairvoyant else None)
+                       future_hint=hint if self.policy.clairvoyant else None,
+                       extra={"session_blocks": self.cfg.session_blocks, "block_bytes": self.cfg.block_bytes})
 
     def _missing_by_tier(self, session: int) -> Dict[str, int]:
         out: Dict[str, int] = {}

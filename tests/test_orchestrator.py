@@ -5,7 +5,8 @@ import pytest
 from orchestrator.bench import mean_ci, tcrit
 from orchestrator.dashboard import write_dashboard
 from orchestrator.engine import Config, Engine, run_one
-from orchestrator.policies import ALL_POLICIES, AdaptiveGate
+from orchestrator.estimator import TransferCostEstimator
+from orchestrator.policies import ALL_POLICIES, AdaptiveGate, AdaptiveGateV2, AdaptiveV2
 from orchestrator.telemetry import Context, MarkovPredictor
 from orchestrator.tiers import DEFAULT_TIERS, SimulatedBackend
 from orchestrator.workload import SCENARIOS, make_trace
@@ -122,3 +123,40 @@ def test_dashboard_labels_simulation_and_is_self_contained(tmp_path):
     write_dashboard(payload, str(out))
     text = out.read_text(encoding="utf-8")
     assert "Simulated, not measured" in text and "<script" not in text and "http" not in text.replace("https://", "")
+
+
+def test_v2_gate_decision_does_not_depend_on_the_source_tier_but_the_original_does():
+    est = TransferCostEstimator(SimulatedBackend())
+    blk = 32 * 2 ** 20
+    mk = lambda acc: Context(now=0.0, session=1, util={"DRAM": 0.2, "CXL": 0.2, "NVMe": 0.2}, queue_ms={"DRAM": 0.0, "CXL": 0.0, "NVMe": 0.0}, pred=2, pred_p_model=0.8,  # noqa: E731
+                             pred_accuracy=acc, mean_gap_ms=14.0, access_score={}, extra={"session_blocks": 8, "block_bytes": blk})
+    from_dram, from_cxl = {2: {"DRAM": 8 * blk}}, {2: {"CXL": 8 * blk}}
+    v2, orig = AdaptiveGateV2(), AdaptiveGate()
+    accs = [a / 100 for a in range(10, 100, 5)]
+    assert all((v2.prefetch(mk(a), from_dram, est) is not None) == (v2.prefetch(mk(a), from_cxl, est) is not None) for a in accs)
+    assert any((orig.prefetch(mk(a), from_dram, est) is not None) != (orig.prefetch(mk(a), from_cxl, est) is not None) for a in accs)   # the defect v2 removes
+
+
+def test_v2_has_no_queue_veto_but_the_original_has():
+    est = TransferCostEstimator(SimulatedBackend())
+    blk = 32 * 2 ** 20
+    ctx = Context(now=0.0, session=1, util={"DRAM": 0.0, "CXL": 0.0, "NVMe": 0.0}, queue_ms={"DRAM": 100.0, "CXL": 0.0, "NVMe": 0.0}, pred=2, pred_p_model=0.9,
+                  pred_accuracy=0.9, mean_gap_ms=14.0, access_score={}, extra={"session_blocks": 8, "block_bytes": blk})
+    need = {2: {"DRAM": 8 * blk}}
+    assert AdaptiveGate().prefetch(ctx, need, est) is None and AdaptiveGateV2().prefetch(ctx, need, est) == 2
+
+
+def test_agentic_accuracy_scenario_variant_controls_predictability():
+    hi = run_one(Config(scenario="agentic_loop@0.9", seed=1, **SMALL), "lru_demand")["predictor_accuracy"]
+    lo = run_one(Config(scenario="agentic_loop@0.3", seed=1, **SMALL), "lru_demand")["predictor_accuracy"]
+    assert hi > lo + 0.3
+
+
+def test_adaptive_v2_evicts_by_score_but_demotes_like_the_baseline():
+    ctx = Context(now=0.0, session=1, util={}, queue_ms={}, pred=None, pred_p_model=0.0, pred_accuracy=0.0, mean_gap_ms=14.0, access_score={1: 5.0, 2: 0.1}, extra={})
+    v2 = AdaptiveV2()
+    assert v2.hbm_victim([(1, 0), (2, 0)], ctx) == (2, 0)                      # lowest reuse score goes first, not the oldest
+    assert ALL_POLICIES["lru_demand"]().hbm_victim([(1, 0), (2, 0)], ctx) == (1, 0)
+    free = {"DRAM": 0, "CXL": 5, "NVMe": 10**9}
+    assert v2.demote_tier((2, 0), ctx, free) == "CXL" == ALL_POLICIES["lru_demand"]().demote_tier((2, 0), ctx, free)   # waterfall: first tier with room
+    assert v2.lower_victim("DRAM", [(7, 0), (8, 0)], ctx) == (7, 0)             # LRU in the lower tiers
