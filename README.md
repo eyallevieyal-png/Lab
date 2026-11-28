@@ -1,4 +1,4 @@
-> **Read this first.** The first version of this simulator had 8 defects that made its results artifacts; they are fixed on this branch and the old results should be discarded. The research write-up (decode vs prefill, KV-prefetch threshold, MoE, 20 Lean theorems, and the limits) is in [docs/POST.md](docs/POST.md); assumptions are in [docs/MODEL.md](docs/MODEL.md). No GPU measurements yet.
+> **Read this first.** The first version of this simulator had 8 defects that made its results artifacts; they are fixed on this branch and the old results should be discarded. The research write-up (decode vs prefill, KV-prefetch threshold, MoE, 20 Lean theorems, and the limits) is in [docs/POST.md](docs/POST.md); assumptions are in [docs/MODEL.md](docs/MODEL.md). One GPU measurement exists (a free-tier Colab Tesla T4, [section 3b](docs/POST.md)); there is no H100, MoE or contended-link measurement yet.
 
 # Memory Frontier Labs Simulator
 
