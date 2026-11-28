@@ -40,7 +40,7 @@ Code: `orchestrator/` · tests: `tests/test_orchestrator.py` · benchmark: `pyth
 | Placement controller | `engine.py` + `policies.py` | Engine owns capacity bookkeeping; the policy chooses victims and demotion tiers. |
 | Adaptive decision engine | `policies.py` (`AdaptiveGate`, `Adaptive`) | Uses `src.kv_prefetch.analytic_breakeven` (the congestion-aware M/D/1 form of `p* = (u+gamma)/(1+u)`). |
 | Baseline policy | `policies.py` (`LRUDemand`) | Plain tiered cache: LRU, waterfall demotion, demand fetch only. |
-| Adaptive policy | `policies.py` (`Adaptive`) | Reuse-score eviction and demotion + gated prefetch. |
+| Adaptive policy | `policies.py` (`Adaptive`, `AdaptiveV2`) | `Adaptive`: reuse-score eviction + cold-to-slower-tier demotion + gated prefetch (first version). `AdaptiveV2`: gate without the two defects found by the H17 diagnosis + reuse-score eviction only (the demotion rule caused a regression). Designed on seeds 100-119, judged on 0-19. |
 | Reproducible benchmark | `bench.py` | 20 seeds, 95% CI (t), paired differences on identical traces. |
 | Comparison dashboard | `dashboard.py` | One self-contained HTML file, no scripts, no network. |
 
@@ -80,4 +80,4 @@ Single serving thread; prefill output appears in HBM at first touch with no cost
 The engine's contract with a backend is three methods; the first thing to test on any real backend is that `reserve_read` completion times match measured copies within the run-to-run spread (`experiments/aggregate_gpu_repeats.py` gives that spread).
 
 ## 6. What the benchmark currently shows
-See `RESEARCH_STATUS.md` section 4: prediction helps a lot when the workload is predictable, the congestion-aware gate protects against catastrophic prefetching on unpredictable workloads (but a static accuracy threshold of 0.5 gives the same protection here and is better on the predictable workload), and reuse-score placement helps on Zipf traffic but hurts on a phase-shifting working set. All simulated.
+See `RESEARCH_STATUS.md` section 4 (generated from the stored benchmark). In short: prediction helps a lot when the workload is predictable and can double P99 when it is not; a static accuracy threshold of 0.5 already prevents the damage; the closed-form congestion-aware gate, once two defects are removed, adds value only in a narrow regime (medium accuracy, heavy load); reuse-score eviction helps on Zipf-like access and still regresses on unstructured traffic and on a shifting working set under background load. All simulated, all with assumed tier parameters.

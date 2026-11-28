@@ -4,14 +4,14 @@ Ordered by value per unit of effort, and by what unblocks what. "Free" means no 
 
 ## Next three highest-value engineering tasks
 1. **Run the T4 repeat protocol** (`experiments/run_gpu_repeats.py --runs 5`, two sessions) and commit `aggregated.json`. It turns the only hardware evidence from an anecdote into a number with an interval. Free; tooling done and tested on the stored files.
-2. **H17 diagnosis, second step.** First step DONE (`experiments/h17_gate_diagnosis.py`): the gate trails a static threshold even with the true utilisation, so the load estimate is not the cause. Next: sweep lead, period and the accuracy estimator window, and compare the analytic stall model against the engine's actual stall for the same parameters, to find which assumption of the M/D/1 threshold breaks. This decides whether the "potentially independent contribution" in H13 survives as an online gate. Free; about a day.
-3. **Make results self-describing and reproducible end to end:** store per-seed raw rows (including prefetch counts) in the benchmark JSON, record the BurstGPT URL and SHA-256 next to the two trace results, and add a CI job that runs `pytest`, `verify_simulator_fixes` and `make_results_summary` and fails if a committed result differs from a regenerated one. Free.
+2. **H17 follow-up.** Steps 1-2 DONE (the gate had three separable defects; the fixed gate wins in a narrow regime on held-out seeds). Next: (i) a steady-state latency metric so the overloaded regime (u = 0.75) stops depending on run length; (ii) why the fixed gate still trails a static threshold at accuracy 0.7, u = 0.5; (iii) the same comparison on a real arrival trace (BurstGPT gaps) and a real predictor. Free; about two days.
+3. **Make results self-describing and reproducible end to end.** DONE: per-seed raw rows (including prefetch counts) are stored in the benchmark JSON; `research/check_all.py` regenerates the cheap results and fails if a committed one differs. STILL OPEN: record the BurstGPT URL, version and SHA-256 next to the two trace results (needs one download of the CSV), and decide whether to enable a CI job (a repository change the owner should approve). Free.
 
 ## Backlog
 
 | # | Task | Depends on | Notes |
 |---|---|---|---|
-| 4 | H16 decay sweep and change detection for the `phase_shift` regression | none | cheap; tune on seeds 100-119, evaluate on 0-19 |
+| 4 | H16 follow-up: causes of the two regressions left in `adaptive_v2` (unstructured traffic, shifting set under load); change detection | none | cheap; tune on seeds 100-119, evaluate on 0-19. The decay sweep and the demotion/eviction ablation are DONE |
 | 5 | Extend the engine to several servers; unit-test that one tenant equals the single-tenant engine | none | prerequisite for H19 |
 | 6 | Look for a public MoE routing trace; if none, keep H18 synthetic and say so | none | |
 | 7 | Serving harness (small model on a T4; 8B on an H100): prefill/decode step time, TTFT, P99, throughput on a fixed seeded trace | stage A | needed for hardware claims about orchestration |

@@ -54,7 +54,7 @@
 ## 7. שחזור
 ```
 cd Lab && python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt   (pytest)
-.venv/Scripts/python -m pytest -q                       # 128 בדיקות (נכון ל-28.11.2026)
+.venv/Scripts/python -m pytest -q                       # 140 בדיקות (נכון ל-28.11.2026)
 .venv/Scripts/python experiments/h6_sensitivity.py      # H6 בסימולטור
 .venv/Scripts/python experiments/h6_calibrated.py       # H6 ממפרטים
 .venv/Scripts/python experiments/h13_kv_prefetch.py     # H13 ממפרטים

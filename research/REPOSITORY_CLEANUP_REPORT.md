@@ -32,7 +32,7 @@ No plot or dashboard file existed in the repository, so no obsolete visualisatio
 | Text | Was | Now | Why |
 |---|---|---|---|
 | Lean theorem count (README, POST title and section 6, REPORT.he.md) | 20 | 22 | the table in POST lists 22; the file has 22 `theorem` declarations; the library rebuilt successfully |
-| Test counts (POST, REPORT.he.md) | 61 / 73 / 82 | 128 (dated) | suite size on 2026-11-28 |
+| Test counts (POST, REPORT.he.md) | 61 / 73 / 82 | 140 (dated) | suite size on 2026-11-28 |
 | README banner | "fixed on this branch" | fixed; old results archived as superseded; 72-run figures not reproducible | accuracy |
 
 No experimental conclusion was changed. The statements about the "72-run" figures and the public website are new findings (F1 in the audit), not edits to earlier conclusions.
@@ -47,4 +47,4 @@ No experimental conclusion was changed. The statements about the "72-run" figure
 `git checkout main` restores the previous state; every archived file is also in git history at its original path. To restore the old root summary: `git show 7c17e4e:results_summary.json`.
 
 ## 7. Verification after cleanup
-`pytest`: 128 passed. `verify_simulator_fixes`: 8/8. Re-runs of six experiment scripts plus the smoke/report generator: committed outputs byte-identical (the two scripts that need the external BurstGPT CSV were not re-run; one was attempted and failed for lack of the file). Lean: `lake build` succeeded.
+`pytest`: 140 passed. `verify_simulator_fixes`: 8/8. Re-runs of six experiment scripts plus the smoke/report generator: committed outputs byte-identical (the two scripts that need the external BurstGPT CSV were not re-run; one was attempted and failed for lack of the file). Lean: `lake build` succeeded.

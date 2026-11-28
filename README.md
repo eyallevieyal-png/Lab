@@ -35,19 +35,20 @@ Integrity rule: every claim carries one label (below). Research integrity is mor
 ```bash
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt            # pytest, numpy
-.venv/Scripts/python -m pytest -q                                   # 128 tests
+.venv/Scripts/python -m pytest -q                                   # 140 tests
 .venv/Scripts/python -X utf8 -m research.validation.verify_simulator_fixes   # the 8 defects, checked in the current execution path
 .venv/Scripts/python -X utf8 -m research.pipeline.make_results_summary       # regenerates results_summary.json
 .venv/Scripts/python -X utf8 -m orchestrator.bench                  # policy comparison, 20 seeds, about 3-5 minutes
-.venv/Scripts/python -X utf8 experiments/h17_gate_diagnosis.py      # why the H13 gate loses to a static threshold (simulated)
+.venv/Scripts/python -X utf8 experiments/h17_gate_diagnosis.py      # H17 diagnosis, steps 1-2, accuracy sweep (--confirm = held-out seeds), h16_decay_sweep.py (simulated)
 .venv/Scripts/python -X utf8 -m research.figures.make_figures       # figures from stored data
 .venv/Scripts/python -X utf8 -m research.registry.build_registry    # experiment registry
+.venv/Scripts/python -X utf8 -m research.check_all                  # everything cheap at once: tests, 8 defects, regeneration of committed results (about 1.5 minutes)
 ```
 GPU measurement (needs a CUDA GPU, for example a free Colab T4): see [docs/GPU_MEASUREMENT.md](docs/GPU_MEASUREMENT.md) and `experiments/run_gpu_repeats.py`.
 Windows note: this repository used to contain both `README.md` and `Readme.md`, which collide on case-insensitive file systems; the second one is archived.
 
 ## Current state in one paragraph
 
-Prediction helps a lot when the workload is predictable and can hurt badly when it is not; a trivial accuracy threshold protects against the bad case as well as the closed-form H13 gate does, and the gate is worse on predictable traffic (simulated; orchestrator benchmark and its diagnosis). Memory-bound decode versus compute-bound prefill is a per-phase statement, true for the tested configurations only. The closed-form prefetch threshold is a proved theorem that stops matching a queueing simulation above link utilisation of about 0.5. A single T4 run shows the roofline about 1.4x optimistic in the memory-bound regime. Everything about H100, CXL and MoE performance is either computed from specs or unmeasured.
+Prediction helps a lot when the workload is predictable and can hurt badly when it is not (simulated orchestrator benchmark). A trivial accuracy threshold protects against the bad case as well as the closed-form H13 gate does; the gate as first implemented was worse on predictable traffic for three identifiable reasons, and once fixed it wins only in a narrow regime (medium predictor accuracy under heavy load). Reuse-score placement helps on Zipf-like access and still regresses on two other workloads. Memory-bound decode versus compute-bound prefill is a per-phase statement, true for the tested configurations only. The closed-form prefetch threshold is a proved theorem that stops matching a queueing simulation above link utilisation of about 0.5. A single T4 run shows the roofline about 1.4x optimistic in the memory-bound regime. Everything about H100, CXL and MoE performance is either computed from specs or unmeasured.
 
 Code license: see `LICENSE`. Corrections and issues welcome.

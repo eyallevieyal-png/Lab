@@ -36,7 +36,7 @@ I started from a simulator of data placement across HBM, DRAM, CXL, NVMe and a Q
 | 7 | `seed` did not change the workload | Different seeds gave identical results |
 | 8 | Bandwidth divided by 8; data so small transfers cost about zero | Transfers 8x too slow, then irrelevant |
 
-Fixed in 8 changes with tests (61 at the time; the suite is 128 tests on 2026-11-28, and `python -m research.validation.verify_simulator_fixes` now checks each of the 8 defects in the current execution path). In the corrected model, prediction does not beat data-local placement unless gated, and gating only makes it match. **Earlier results from the first version should be discarded.**
+Fixed in 8 changes with tests (61 at the time; the suite is 140 tests on 2026-11-28, and `python -m research.validation.verify_simulator_fixes` now checks each of the 8 defects in the current execution path). In the corrected model, prediction does not beat data-local placement unless gated, and gating only makes it match. **Earlier results from the first version should be discarded.**
 
 ## 3. H6: does memory take a growing share as compute gets cheaper?
 
@@ -197,7 +197,7 @@ The largest remaining gap is a measurement on a data-center GPU (an H100 or simi
 ```
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt     # pytest
-.venv/Scripts/python -m pytest -q                            # 128 tests (2026-11-28)
+.venv/Scripts/python -m pytest -q                            # 140 tests (2026-11-28)
 .venv/Scripts/python experiments/h6_sensitivity.py           # H6 in the simulator
 .venv/Scripts/python experiments/h6_calibrated.py            # H6 from specs
 .venv/Scripts/python experiments/h6_moe.py                   # MoE extension

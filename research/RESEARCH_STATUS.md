@@ -20,29 +20,36 @@ The single page that says what can be relied on today. Every line has an evidenc
 - The "72-run" evaluation (-24.6% P99 etc.): no code or data in this repository; **superseded and unverified**; must not be presented as a current finding.
 
 ## 3. Unverified hypotheses
-H16 placement, H17 contention-aware prefetch, H18 MoE-aware orchestration, H19 multi-workload, H20 hardware validation: designed in `NEXT_EXPERIMENTS.md`. H16 and H17 have a first simulated pass (below); the others are not run.
+H16 placement and H17 contention-aware prefetch have simulated passes (section 4); H18 MoE-aware orchestration, H19 multi-workload and H20 hardware validation are designed in `NEXT_EXPERIMENTS.md` and not run.
 
 ## 4. Orchestrator prototype: what it shows (EXP-ORCH-001, simulated)
 
-Prototype with simulated tiers and **assumed** parameters; CXL is a model only. 20 seeds per cell, paired differences on identical traces, 95% CI; ✱ = CI excludes 0 (no multiple-comparison correction). Table: change in **P99 latency versus the LRU baseline** (negative is better).
+Prototype with simulated tiers and **assumed** parameters; CXL is a model only. 20 seeds per cell (0-19), paired differences on identical traces, 95% CI; ✱ = CI excludes 0 (no multiple-comparison correction). Cells: **P99 latency versus the LRU baseline** (negative is better). **This table is generated from `research/results/orchestrator_bench.json`, not typed by hand** (an earlier hand-typed version of it carried one significance mark the data does not support).
 
-| Scenario | Background | always_prefetch | static_threshold | adaptive_gate (H13) | adaptive (gate + placement) | clairvoyant bound |
-|---|---|---|---|---|---|---|
-| agentic_loop (predictable) | idle | -51.0% ✱ | -50.9% ✱ | -43.6% ✱ | -41.3% ✱ | -76.5% |
-| agentic_loop | 50% on DRAM link | -69.9% ✱ | -68.3% ✱ | -52.1% ✱ | -54.1% ✱ | -80.5% |
-| zipf_iid | idle | +0.1% | -0.2% | -0.9% | **-9.8% ✱** | -67.5% |
-| zipf_iid | 50% | +4.9% | 0.0% | 0.0% | **-14.6% ✱** | -68.4% |
-| uniform (no structure) | idle | **+17.7% ✱** | 0.0% | 0.0% | +5.5% ✱ | -72.3% |
-| uniform | 50% | **+99.2% ✱** | 0.0% | 0.0% | +11.1% ✱ | -71.2% |
-| phase_shift | idle | +5.4% ✱ | 0.0% | 0.0% | **+46.5% ✱** | -57.1% |
-| phase_shift | 50% | **+77.7% ✱** | 0.0% | 0.0% | +0.8% | -64.2% |
+| Scenario | Background | always | static 0.5 | gate (H13, v1) | gate v2 | adaptive (v1) | adaptive v2 | clairvoyant bound |
+|---|---|---|---|---|---|---|---|---|
+| agentic_loop | idle link | -51.0% ✱ | -50.9% ✱ | -43.6% ✱ | -50.8% ✱ | -41.3% ✱ | -51.5% ✱ | -76.5% ✱ |
+| agentic_loop | 50% on DRAM link | -69.9% ✱ | -68.3% ✱ | -52.1% ✱ | -58.6% ✱ | -54.1% ✱ | -60.0% ✱ | -80.5% ✱ |
+| zipf_iid | idle link | +0.1% | -0.2% | -0.9% | -2.5% | -9.8% ✱ | -12.2% ✱ | -67.5% ✱ |
+| zipf_iid | 50% on DRAM link | +4.9% | +0.0% | +0.0% | -5.3% ✱ | -14.6% ✱ | -15.9% ✱ | -68.4% ✱ |
+| uniform | idle link | +17.7% ✱ | +0.0% | +0.0% | +0.0% | +5.5% | +5.0% ✱ | -72.3% ✱ |
+| uniform | 50% on DRAM link | +99.2% ✱ | +0.0% | +0.0% | +0.0% | +11.1% ✱ | +10.6% ✱ | -71.2% ✱ |
+| phase_shift | idle link | +5.4% ✱ | +0.0% | +0.0% | +0.0% | +46.5% ✱ | -0.2% | -57.1% ✱ |
+| phase_shift | 50% on DRAM link | +77.7% ✱ | +0.0% | +0.0% | +0.0% | +0.8% | +10.1% ✱ | -64.2% ✱ |
+
+`gate v2` and `adaptive v2` were designed AFTER diagnoses run on other seeds (100-119), so seeds 0-19 are held out for them; `gate (v1)` and `adaptive (v1)` are the pre-diagnosis versions, kept for the record. The stored JSON now also holds every per-seed row (`raw_rows`).
 
 Reading it honestly:
-1. **Prediction pays when the workload is predictable** (P99 roughly halved) and **can double the P99 when it is not** (always_prefetch on uniform traffic with a busy link). Any adaptive scheme has to avoid the second case.
-2. **H17 (contention-aware gating): only partly supported.** The H13 gate avoids the catastrophic cases, but so does a static "accuracy > 0.5" rule, and on the predictable workload the H13 gate is *significantly worse* than the static rule (P99 38.6 vs 25.5 ms under background load; 16.9 vs 14.7 idle). Diagnosis on separate seeds (100-119, agentic_loop, 50% background): P99 minus always-prefetch = +16.7 ± 3.9 ms (measured u), +10.9 ± 3.9 (true u), +9.4 ± 2.3 (u ignored), +12.4 ± 3.8 (no queue check), +13.5 ± 3.0 (no margin); static threshold -0.4 ± 1.0. **So the estimate of the background load is not the main cause; the threshold model itself is conservative here.** The mechanism is not isolated; hypotheses are in `NEXT_EXPERIMENTS.md`.
-3. **H16 (placement): not supported as a general claim.** Reuse-score eviction and demotion helps on Zipf traffic (-9.8% / -14.6%) and hurts on a phase-shifting working set (+46.5%, idle link) and slightly on uniform traffic. Hypothesis for the regression (untested): the score decays too slowly after a working-set change.
+1. **Prediction pays when the workload is predictable** (P99 roughly halved, or cut by two thirds under background load) and **can double it when it is not** (always-prefetch: +99% on unstructured traffic with a busy link, +78% on the shifting working set). Any adaptive scheme has to avoid the second case; a static accuracy threshold of 0.5 already does.
+2. **H17, contention-aware gating: partly supported, in a narrow regime.**
+   - The H13 gate as first implemented trailed the static threshold on predictable traffic (-43.6% / -52.1% versus -50.9% / -68.3%). Diagnosis on seeds 100-119 (EXP-H17-DIAG-001/002) found three separable causes: (a) its threshold is computed in units of the *source tier's* transfer time, so it jumps between about 0.22 and 0.64 depending on where the missing blocks sit (this alone explains the idle-link gap and about a third of the loaded gap); (b) a queue-length veto that skips a prefetch exactly when a miss would cost most; (c) the measured background-load estimate (with (a) and (b) fixed, P99 minus always-prefetch is +8.1 ms with measured load, +1.9 ± 2.0 with the true load, -0.5 ± 0.5 with load ignored).
+   - `gate v2` removes (a) and (b). It ties the static rule on an idle link (-50.8% vs -50.9%) but still trails it with 50% background on accurate predictions (-58.6% vs -68.3%).
+   - **Where load-awareness earns its keep** (EXP-H17-SWEEP-001/002, held-out seeds 0-19; predictor accuracy controlled at 0.3 / 0.5 / 0.7): with medium accuracy (0.3 and 0.5) and heavy background load (u = 0.75) the v2 gate beats the best static threshold chosen in hindsight by 373 ± 74 ms and 523 ± 158 ms of P99 (significant); at u = 0.5 it ties; with accurate predictions (0.7) at u = 0.5 it loses to a static threshold by 9.6 ± 3.5 ms. **Caveat:** at u = 0.75 the link is overloaded and absolute P99 values are around a second and depend on the run length; only the relative comparison is meaningful.
+3. **H16, placement: mixed; one regression understood, one new one introduced.**
+   - The first rule set (reuse-score eviction plus "cold data to the slower tier first") regressed +46.5% on the shifting working set. Ablation (seeds 100-119): the demotion rule causes it (demote-only +3.5 ms, evict-only -0.1 ms); slow score decay makes it worse (0.85: +3.6 ms, 0.97: +6.0 ms, 0.99: +14.9 ms), and the combination is worse than either part. Faster decay alone leaves a significant residue and costs the Zipf gain.
+   - `adaptive v2` (score eviction only, ordinary waterfall demotion) removes the idle-link regression (-0.2%) and improves Zipf (-12.2% idle, -15.9% loaded), but is **still worse on unstructured traffic (+5.0% / +10.6%) and on the shifting working set under background load (+10.1%)**. Not a general improvement; hypotheses for the remaining regressions are untested.
 4. **The clairvoyant bound is far below every realisable policy** (-57% to -80%): predictor quality, not the gate, is the dominant limit.
-5. A first version of the gate was fed total link utilisation (own traffic included), which double-counts it. Single-seed check of the fix (seed 1, agentic_loop, `adaptive_gate`): idle link mean latency 9.7 -> 7.5 ms and P99 21.5 -> 20.8 ms; with 50% background mean 17.9 -> 11.1 ms and P99 56.6 -> 55.4 ms. The reported table is the corrected version. The fix did not change the conclusion that the gate trails the static threshold.
+5. History: the first version of the gate was fed total link utilisation (own traffic included), double-counting it; fixed before the numbers above. A second engine bug (the model's own prediction probability was reset to 0 in the second context) affected no reported number, because no policy used that field before the diagnosis.
 
 ## 5. What can be demonstrated today
 - A reproducible control-loop prototype with simulated tiers: `python -X utf8 -m orchestrator.bench` and the dashboard `research/figures/orchestrator_dashboard.html`.
@@ -56,7 +63,7 @@ Reading it honestly:
 - **A free Colab/Kaggle session by the owner:** T4 repeats (`experiments/run_gpu_repeats.py`), the cheapest way to strengthen the only hardware evidence.
 
 ## 7. New research opportunities that emerged
-1. Why does a theorem-derived gate lose to a trivial threshold? (H17 diagnosis; possibly a publishable negative result about using closed-form thresholds online.)
+1. A theorem-derived gate lost to a trivial threshold for three identifiable reasons, and wins only in a narrow regime (medium accuracy, heavy load): a concrete, checkable lesson about using closed-form thresholds online. Worth testing on real traces before saying anything outside this simulator.
 2. Predictor quality is the bottleneck (clairvoyant bound vs realisable): learned or semantic predictors for agentic/tool-call sessions.
 3. Placement policies need change detection (phase shifts); adaptive decay.
 4. The gap between the T4 host link in Colab (about 1-2 GB/s) and the assumed PCIe Gen5 (64 GB/s): link bandwidth dominates every conclusion about prefetch; measuring it on real servers is the highest-leverage hardware fact.

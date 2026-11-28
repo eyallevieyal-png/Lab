@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-11-28T13:45:45Z",
-  "repo_head_when_generated": "9953e25",
+  "generated_utc": "2026-11-28T15:39:14Z",
+  "repo_head_when_generated": "9556eba",
   "classes": {
-    "validated_simulation": 10,
+    "validated_simulation": 14,
     "theoretical": 3,
     "preliminary_hardware": 3,
     "superseded": 2,
@@ -328,15 +328,36 @@
       "outputs": [
         {
           "path": "research/results/orchestrator_bench.json",
-          "sha256": "dad40e15f02dececfc60bbac4028320328ecdca53cfc81c6a01767d32504794b",
+          "sha256": "9bfdd5e5ff1356a4c75574a6c5232509c242f5cb047a1295ca1481bb413daba2",
           "exists": true
         }
       ],
-      "seeds": null,
-      "runs": null,
-      "validation_status": "orchestrator unit tests; results come from simulated tiers with ASSUMED parameters, not hardware",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "runs": 1280,
+      "validation_status": "orchestrator unit tests (capacity/conservation, causality, determinism); simulated tiers with ASSUMED parameters, not hardware; per-seed raw rows stored; adaptive_gate_v2 and adaptive_v2 were designed on other seeds (100-119)",
       "reproduce": "python -m orchestrator.bench",
-      "notes": ""
+      "notes": "Table in RESEARCH_STATUS.md is generated from this file."
     },
     {
       "id": "EXP-H17-DIAG-001",
@@ -380,6 +401,178 @@
       "validation_status": "seeds separate from the benchmark seeds; ran once in the audit",
       "reproduce": "python -X utf8 experiments/h17_gate_diagnosis.py",
       "notes": "Gate still +9.4 to +16.7 ms P99 worse than always-prefetch with true u or u ignored: the load estimate is not the main cause; mechanism not isolated."
+    },
+    {
+      "id": "EXP-H17-DIAG2-001",
+      "title": "H17 diagnosis step 2: tier-dependent lead, queue veto, accuracy window, conditional confidence",
+      "hypothesis": "H17",
+      "class": "validated_simulation",
+      "also": [
+        "simulated"
+      ],
+      "script": "experiments/h17_gate_diagnosis2.py",
+      "outputs": [
+        {
+          "path": "experiments/results/h17_gate_diagnosis2.json",
+          "sha256": "5d6f43333d06f0a804630a1e22fb7734537cb1b4db61a2cc3f4e63d4b1aa09bc",
+          "exists": true
+        }
+      ],
+      "seeds": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "runs": 720,
+      "validation_status": "tuning seeds; findings were then confirmed on held-out seeds (EXP-H17-SWEEP-002)",
+      "reproduce": "python -X utf8 experiments/h17_gate_diagnosis2.py",
+      "notes": "The threshold's dependence on the source tier explains the idle-link gap; with the queue veto and the load estimate also fixed, the gate ties a static threshold (stored under combined_fixes_*)."
+    },
+    {
+      "id": "EXP-H17-SWEEP-001",
+      "title": "H17 accuracy x load sweep (tuning seeds)",
+      "hypothesis": "H17",
+      "class": "validated_simulation",
+      "also": [
+        "simulated"
+      ],
+      "script": "experiments/h17_accuracy_sweep.py",
+      "outputs": [
+        {
+          "path": "experiments/results/h17_accuracy_sweep.json",
+          "sha256": "b5fbb458a479b9e5ee35bfe8c2705790b4bb87030c387d2c2d54484393d62e56",
+          "exists": true
+        }
+      ],
+      "seeds": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "runs": 960,
+      "validation_status": "tuning seeds only; not evidence by itself",
+      "reproduce": "python -X utf8 experiments/h17_accuracy_sweep.py",
+      "notes": ""
+    },
+    {
+      "id": "EXP-H17-SWEEP-002",
+      "title": "H17 accuracy x load sweep, held-out confirmation",
+      "hypothesis": "H17",
+      "class": "validated_simulation",
+      "also": [
+        "simulated"
+      ],
+      "script": "experiments/h17_accuracy_sweep.py --confirm",
+      "outputs": [
+        {
+          "path": "experiments/results/h17_accuracy_sweep_confirm.json",
+          "sha256": "c6411692cf4de02c60fd32cadbb0eeee9771efd14536278b72a8d2838e6f8b8d",
+          "exists": true
+        }
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "runs": 960,
+      "validation_status": "held-out seeds 0-19",
+      "reproduce": "python -X utf8 experiments/h17_accuracy_sweep.py --confirm",
+      "notes": "Medium accuracy (0.3, 0.5) at load 0.75: the fixed gate beats the best static threshold in hindsight (-373 +- 74 and -523 +- 158 ms P99); ties at load 0.5; loses at accuracy 0.7, load 0.5 (+9.6 +- 3.5). At load 0.75 the link is overloaded: absolute P99 depends on run length."
+    },
+    {
+      "id": "EXP-H16-DECAY-001",
+      "title": "H16 placement: decay sweep and eviction/demotion ablation (tuning seeds)",
+      "hypothesis": "H16",
+      "class": "validated_simulation",
+      "also": [
+        "simulated"
+      ],
+      "script": "experiments/h16_decay_sweep.py",
+      "outputs": [
+        {
+          "path": "experiments/results/h16_decay_sweep.json",
+          "sha256": "a0a68ab08dda68f043c52c3bccaad942e2d4d1efda2a51c2e0db9b332c63edd9",
+          "exists": true
+        }
+      ],
+      "seeds": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "runs": 800,
+      "validation_status": "tuning seeds; the eviction/demotion ablation is part of the same script and stored under `ablation`; adaptive_v2 was then judged on held-out seeds in EXP-ORCH-001",
+      "reproduce": "python -X utf8 experiments/h16_decay_sweep.py",
+      "notes": "The phase_shift regression comes from the cold-to-slower-tier demotion rule, not from score eviction; slow decay worsens it."
     },
     {
       "id": "PROOF-LEAN-001",
