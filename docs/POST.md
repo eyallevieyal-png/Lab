@@ -1,4 +1,4 @@
-# Auditing an LLM-inference simulator: a roofline, a prefetch threshold, MoE, and 20 Lean theorems (with the limits stated)
+# Auditing an LLM-inference simulator: a roofline, a prefetch threshold, MoE, and 22 Lean theorems (with the limits stated)
 
 *Everything below is simulation, calculation from public specifications, or proof inside a stated model, unless marked "measured". The measurements are one laptop CPU and one run on a free-tier Tesla T4 (section 3b). There is still no H100 measurement, and no MoE or contended-link measurement. Code, tests and Lean sources: this repository, branch `fix/simulator-validity` (merged to `main`). Full assumptions: [MODEL.md](MODEL.md).*
 
@@ -36,7 +36,7 @@ I started from a simulator of data placement across HBM, DRAM, CXL, NVMe and a Q
 | 7 | `seed` did not change the workload | Different seeds gave identical results |
 | 8 | Bandwidth divided by 8; data so small transfers cost about zero | Transfers 8x too slow, then irrelevant |
 
-Fixed in 8 changes with tests (61 at the time, 73 now). In the corrected model, prediction does not beat data-local placement unless gated, and gating only makes it match. **Earlier results from the first version should be discarded.**
+Fixed in 8 changes with tests (61 at the time; the suite is 128 tests on 2026-11-28, and `python -m research.validation.verify_simulator_fixes` now checks each of the 8 defects in the current execution path). In the corrected model, prediction does not beat data-local placement unless gated, and gating only makes it match. **Earlier results from the first version should be discarded.**
 
 ## 3. H6: does memory take a growing share as compute gets cheaper?
 
@@ -155,7 +155,7 @@ At context 4096 only Mixtral with 8 positions balances (B\* = 440).
 
 ## 6. The Lean library
 
-20 theorems in `formal/LabFormal/Orchestration.lean` (Lean 4 + Mathlib, no `sorry`):
+22 theorems in `formal/LabFormal/Orchestration.lean` (Lean 4 + Mathlib, no `sorry`). *Correction 2026-11-28: earlier versions of this text and of the README said 20; the table below lists 22 and the file contains 22 `theorem` declarations. The library was rebuilt on 2026-11-28 (`lake build`, 18,295 jobs, no errors, no `sorry`); axioms were not re-listed in that rebuild.*
 
 | Area | Theorems |
 |---|---|
@@ -197,7 +197,7 @@ The largest remaining gap is a measurement on a data-center GPU (an H100 or simi
 ```
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt     # pytest
-.venv/Scripts/python -m pytest -q                            # 82 tests
+.venv/Scripts/python -m pytest -q                            # 128 tests (2026-11-28)
 .venv/Scripts/python experiments/h6_sensitivity.py           # H6 in the simulator
 .venv/Scripts/python experiments/h6_calibrated.py            # H6 from specs
 .venv/Scripts/python experiments/h6_moe.py                   # MoE extension

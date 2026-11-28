@@ -1,0 +1,20 @@
+{
+  "generated": "2026-11-28",
+  "note": "Machine-readable copy of what the public site may state as current. Source of truth: research/EXPERIMENT_REGISTRY.json. Not deployed: the site editor is not accessible from this repository.",
+  "do_not_present_as_current": [
+    {"claim": "BitNet + speculative decoding: P99 -24.6%, throughput +13%", "reason": "no code or data in the repository; superseded; not reproducible", "registry_id": "LEGACY-72RUN-001"},
+    {"claim": "FP16 speculative -17.7%; INT4 at 80% acceptance -24.4%; Oracle P99 39.828 ms", "reason": "same", "registry_id": "LEGACY-72RUN-001"},
+    {"claim": "Experimental status: planned, simulator in design", "reason": "outdated"}
+  ],
+  "current_claims": [
+    {"id": "EXP-SIM-CTRL-001", "class": "validated_simulation", "text": "In the corrected simulator the controller that trusts its predictor is the worst controller; gated controllers stay close to data-local placement."},
+    {"id": "EXP-H6-CAL-001", "class": "theoretical", "text": "Single-stream decode is 50-300x memory-bound on H100 specs; prefill becomes compute-bound at 316 tokens (Llama 3.1 8B bf16), 300 (70B bf16), 80 (8B int4 weights-only). Computed from specs, configuration-specific."},
+    {"id": "EXP-H6-MOE-001", "class": "theoretical", "text": "MoE crossover batch about 9.9x (Qwen3-30B-A3B) and 3.7x (Mixtral-8x7B) that of a dense twin, under uniform routing and 8-position speculative verification. Theoretical estimate, not measured."},
+    {"id": "EXP-H13-FORM-001", "class": "validated_simulation", "text": "The proved break-even accuracy (u+gamma)/(1+u) matches a queueing simulation up to link utilisation of about 0.5 and breaks above."},
+    {"id": "EXP-HW-T4-001", "class": "preliminary_hardware", "text": "One free-tier Tesla T4 run: 276 GB/s, 24.9 fp16 TFLOPS, roofline about 1.4x optimistic in the memory-bound regime. One run; not an H100."},
+    {"id": "EXP-ORCH-001", "class": "validated_simulation", "text": "Orchestrator prototype with simulated tiers: prediction halves P99 on a predictable workload and can double it on an unpredictable one; the congestion-aware gate trails a static threshold on predictable traffic. Simulated, assumed parameters, CXL is a model only."},
+    {"id": "PROOF-LEAN-001", "class": "theoretical", "text": "22 Lean 4 theorem declarations about the additive model and the prefetch threshold; true inside the model."}
+  ],
+  "unproven": ["H100 behaviour", "any CXL behaviour", "measured MoE performance", "contended-link hardware behaviour", "benefit of adaptive orchestration on real workloads"],
+  "next_milestones": ["T4 repeats (5 runs x 2 sessions)", "H17 stall-model diagnosis", "serving harness on a GPU", "H100-class validation (needs access)"]
+}
