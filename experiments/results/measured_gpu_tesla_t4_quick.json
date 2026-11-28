@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "compute_capability": "7.5",
+    "cuda": "13.0",
+    "gpu": "Tesla T4",
+    "gpu_memory_GiB": 14.56,
+    "iters": 5,
+    "max_kv_gib": 4.0,
+    "python": "3.13.16",
+    "quick": true,
+    "sm_count": 40,
+    "started_unix": 1795848973,
+    "torch": "2.14.1+cu130"
+  },
+  "sections": {
+    "bandwidth": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "35.32",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "675",
+        "temp_c": "37"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "13.90",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "300",
+        "temp_c": "36"
+      },
+      "result": {
+        "array_bytes": 268435456,
+        "bandwidth_Bps": 264934082221.2542,
+        "copy_Bps": 238892988353.91257,
+        "reduce_Bps": 264934082221.2542
+      },
+      "seconds": 0.4
+    },
+    "decode_attention": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "57.93",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1305",
+        "temp_c": "38"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "44.59",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1305",
+        "temp_c": "38"
+      },
+      "result": {
+        "gqa_native": true,
+        "note": "ratio = measured / (KV bytes / measured bandwidth); the kernel PyTorch picked is not controlled",
+        "rows": [
+          {
+            "batch": 1,
+            "bytes": 2097152.0,
+            "ctx": 512,
+            "effective_Bps": 45669686928.06912,
+            "measured_s": 4.59199994802475e-05,
+            "median_s": 9.830400347709655e-05,
+            "predicted_mem_s": 7.91575014591217e-06,
+            "ratio": 5.8010925855159
+          },
+          {
+            "batch": 16,
+            "bytes": 33554432.0,
+            "ctx": 512,
+            "effective_Bps": 97198366856.88426,
+            "measured_s": 0.0003452160060405731,
+            "median_s": 0.00037465599179267885,
+            "predicted_mem_s": 0.00012665200233459472,
+            "ratio": 2.725705079091972
+          },
+          {
+            "batch": 1,
+            "bytes": 16777216.0,
+            "ctx": 4096,
+            "effective_Bps": 54968334586.87692,
+            "measured_s": 0.0003052160143852234,
+            "median_s": 0.0003829759955406189,
+            "predicted_mem_s": 6.332600116729736e-05,
+            "ratio": 4.819758215569156
+          },
+          {
+            "batch": 16,
+            "bytes": 268435456.0,
+            "ctx": 4096,
+            "effective_Bps": 109774109146.09055,
+            "measured_s": 0.0024453439712524413,
+            "median_s": 0.002488384008407593,
+            "predicted_mem_s": 0.0010132160186767578,
+            "ratio": 2.4134478000515798
+          }
+        ]
+      },
+      "seconds": 0.6
+    },
+    "gemm_family": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "44.59",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1305",
+        "temp_c": "38"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "69.03",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "840",
+        "temp_c": "38"
+      },
+      "result": {
+        "dtype": "fp16",
+        "k": 4096,
+        "m": 4096,
+        "measured_batch_at_half_peak": 512,
+        "predicted_balance_batch": 86.20719045912381,
+        "rows": [
+          {
+            "achieved_flops": 250855492573.28738,
+            "batch": 1,
+            "intensity_flop_per_byte": 0.9995119570522206,
+            "measured_s": 0.000133760005235672,
+            "median_s": 0.00015369600057601928,
+            "predicted_s": 0.00012671384413260966,
+            "ratio": 1.0556068766699898
+          },
+          {
+            "achieved_flops": 1520777349536.5322,
+            "batch": 8,
+            "intensity_flop_per_byte": 7.968871595330739,
+            "measured_s": 0.0001765120029449463,
+            "median_s": 0.00020134399831295014,
+            "predicted_s": 0.00012714673671871424,
+            "ratio": 1.3882542918536909
+          },
+          {
+            "achieved_flops": 10248757430071.398,
+            "batch": 64,
+            "intensity_flop_per_byte": 62.06060606060606,
+            "measured_s": 0.00020953600108623505,
+            "median_s": 0.0002396160066127777,
+            "predicted_s": 0.0001306098774075508,
+            "ratio": 1.6042890878184177
+          },
+          {
+            "achieved_flops": 37329363716264.8,
+            "batch": 512,
+            "intensity_flop_per_byte": 409.6,
+            "measured_s": 0.0004602240025997162,
+            "median_s": 0.00048127999901771543,
+            "predicted_s": 0.0007838720083236695,
+            "ratio": 0.5871162609619357
+          }
+        ]
+      },
+      "seconds": 0.1
+    },
+    "kv_transfer": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "33.57",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1590",
+        "temp_c": "38"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "57.93",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1305",
+        "temp_c": "37"
+      },
+      "result": {
+        "dtype": "bf16 (2 bytes)",
+        "link": "idle; no concurrent traffic",
+        "model": "Llama-3.1-8B",
+        "rows": [
+          {
+            "bytes": 67108864,
+            "ctx": 512,
+            "d2h_Bps": 1415100426.2161474,
+            "d2h_s": 0.04742339324951172,
+            "h2d_Bps": 1046143157.6595756,
+            "h2d_s": 0.06414883422851562
+          }
+        ]
+      },
+      "seconds": 0.7
+    },
+    "peak": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "69.03",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "840",
+        "temp_c": "38"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "35.32",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "675",
+        "temp_c": "37"
+      },
+      "result": {
+        "n": 4096,
+        "peak_flops": {
+          "fp16": 21916676449181.535,
+          "fp32": 4142922015365.3115
+        }
+      },
+      "seconds": 0.5
+    }
+  }
+}

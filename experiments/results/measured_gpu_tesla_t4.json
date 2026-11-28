@@ -1,0 +1,366 @@
+{
+  "meta": {
+    "compute_capability": "7.5",
+    "cuda": "13.0",
+    "gpu": "Tesla T4",
+    "gpu_memory_GiB": 14.56,
+    "iters": 20,
+    "max_kv_gib": 4.0,
+    "python": "3.13.16",
+    "quick": false,
+    "sm_count": 40,
+    "started_unix": 1795849052,
+    "torch": "2.14.1+cu130"
+  },
+  "sections": {
+    "bandwidth": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "41.11",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1530",
+        "temp_c": "36"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "13.80",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "300",
+        "temp_c": "34"
+      },
+      "result": {
+        "array_bytes": 1073741824,
+        "bandwidth_Bps": 276084089753.11426,
+        "copy_Bps": 240756209959.9229,
+        "reduce_Bps": 276084089753.11426
+      },
+      "seconds": 0.6
+    },
+    "decode_attention": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "68.89",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1395",
+        "temp_c": "40"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "39.51",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1395",
+        "temp_c": "39"
+      },
+      "result": {
+        "gqa_native": true,
+        "note": "ratio = measured / (KV bytes / measured bandwidth); the kernel PyTorch picked is not controlled",
+        "rows": [
+          {
+            "batch": 1,
+            "bytes": 2097152.0,
+            "ctx": 512,
+            "effective_Bps": 44765028186.28996,
+            "measured_s": 4.684799909591675e-05,
+            "median_s": 6.887999922037126e-05,
+            "predicted_mem_s": 7.596062496304512e-06,
+            "ratio": 6.167405694556663
+          },
+          {
+            "batch": 4,
+            "bytes": 8388608.0,
+            "ctx": 512,
+            "effective_Bps": 80313726946.19023,
+            "measured_s": 0.00010444799810647964,
+            "median_s": 0.0001313600018620491,
+            "predicted_mem_s": 3.0384249985218048e-05,
+            "ratio": 3.4375703911498108
+          },
+          {
+            "batch": 16,
+            "bytes": 33554432.0,
+            "ctx": 512,
+            "effective_Bps": 107789478471.07462,
+            "measured_s": 0.0003112959861755371,
+            "median_s": 0.00034136000275611876,
+            "predicted_mem_s": 0.00012153699994087219,
+            "ratio": 2.561326890798545
+          },
+          {
+            "batch": 64,
+            "bytes": 134217728.0,
+            "ctx": 512,
+            "effective_Bps": 126563186650.04158,
+            "measured_s": 0.001060479998588562,
+            "median_s": 0.0011301600337028503,
+            "predicted_mem_s": 0.00048614799976348877,
+            "ratio": 2.181393318710528
+          },
+          {
+            "batch": 1,
+            "bytes": 16777216.0,
+            "ctx": 4096,
+            "effective_Bps": 56109586823.431854,
+            "measured_s": 0.0002990080118179321,
+            "median_s": 0.0003266720026731491,
+            "predicted_mem_s": 6.0768499970436096e-05,
+            "ratio": 4.920444176890983
+          },
+          {
+            "batch": 4,
+            "bytes": 67108864.0,
+            "ctx": 4096,
+            "effective_Bps": 97778443602.45238,
+            "measured_s": 0.0006863359808921814,
+            "median_s": 0.0007454240024089814,
+            "predicted_mem_s": 0.00024307399988174439,
+            "ratio": 2.823568054280113
+          },
+          {
+            "batch": 16,
+            "bytes": 268435456.0,
+            "ctx": 4096,
+            "effective_Bps": 116819959649.18774,
+            "measured_s": 0.0022978560924530027,
+            "median_s": 0.002490015983581543,
+            "predicted_mem_s": 0.0009722959995269775,
+            "ratio": 2.363329781847206
+          },
+          {
+            "batch": 64,
+            "bytes": 1073741824.0,
+            "ctx": 4096,
+            "effective_Bps": 106904489233.36438,
+            "measured_s": 0.010043935775756836,
+            "median_s": 0.010286960124969484,
+            "predicted_mem_s": 0.00388918399810791,
+            "ratio": 2.582530366432448
+          },
+          {
+            "batch": 1,
+            "bytes": 67108864.0,
+            "ctx": 16384,
+            "effective_Bps": 55630324228.252045,
+            "measured_s": 0.0012063360214233398,
+            "median_s": 0.0013273119926452636,
+            "predicted_mem_s": 0.00024307399988174439,
+            "ratio": 4.962834453747512
+          },
+          {
+            "batch": 4,
+            "bytes": 268435456.0,
+            "ctx": 16384,
+            "effective_Bps": 100679405577.67207,
+            "measured_s": 0.0026662399768829347,
+            "median_s": 0.002844208002090454,
+            "predicted_mem_s": 0.0009722959995269775,
+            "ratio": 2.7422101686935476
+          },
+          {
+            "batch": 16,
+            "bytes": 1073741824.0,
+            "ctx": 16384,
+            "effective_Bps": 102385001177.40706,
+            "measured_s": 0.010487296104431153,
+            "median_s": 0.010731344223022462,
+            "predicted_mem_s": 0.00388918399810791,
+            "ratio": 2.6965286573052927
+          },
+          {
+            "batch": 64,
+            "ctx": 16384,
+            "skipped": "KV larger than a quarter of --max-kv-gib"
+          }
+        ]
+      },
+      "seconds": 0.8
+    },
+    "gemm_family": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "39.51",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "825",
+        "temp_c": "40"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "69.67",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1395",
+        "temp_c": "39"
+      },
+      "result": {
+        "dtype": "fp16",
+        "k": 8192,
+        "m": 8192,
+        "measured_batch_at_half_peak": 128,
+        "predicted_balance_batch": 92.31718605314146,
+        "rows": [
+          {
+            "achieved_flops": 254709670618.81604,
+            "batch": 1,
+            "intensity_flop_per_byte": 0.9997559189650964,
+            "measured_s": 0.0005269439816474915,
+            "median_s": 0.0005384159982204438,
+            "predicted_s": 0.00048626668823999354,
+            "ratio": 1.083652231154732
+          },
+          {
+            "achieved_flops": 380022091791.6366,
+            "batch": 2,
+            "intensity_flop_per_byte": 1.9990239141044412,
+            "measured_s": 0.0007063680291175842,
+            "median_s": 0.0007148639857769012,
+            "predicted_s": 0.00048638537671649826,
+            "ratio": 1.4522805637911032
+          },
+          {
+            "achieved_flops": 758086675555.0854,
+            "batch": 4,
+            "intensity_flop_per_byte": 3.9960975609756098,
+            "measured_s": 0.0007081919908523559,
+            "median_s": 0.0007446880042552948,
+            "predicted_s": 0.0004866227536695078,
+            "ratio": 1.4553203390347997
+          },
+          {
+            "achieved_flops": 1565549981296.3745,
+            "batch": 8,
+            "intensity_flop_per_byte": 7.984405458089668,
+            "measured_s": 0.0006858559846878052,
+            "median_s": 0.0007091200053691864,
+            "predicted_s": 0.00048709750757552683,
+            "ratio": 1.4080465903050425
+          },
+          {
+            "achieved_flops": 3110203553689.2725,
+            "batch": 16,
+            "intensity_flop_per_byte": 15.937743190661479,
+            "measured_s": 0.0006904640197753906,
+            "median_s": 0.000725136011838913,
+            "predicted_s": 0.0004880470153875649,
+            "ratio": 1.4147489852531596
+          },
+          {
+            "achieved_flops": 6286250112466.91,
+            "batch": 32,
+            "intensity_flop_per_byte": 31.751937984496124,
+            "measured_s": 0.0006832320094108581,
+            "median_s": 0.0007063199877738952,
+            "predicted_s": 0.0004899460310116411,
+            "ratio": 1.3945046314593466
+          },
+          {
+            "achieved_flops": 12300011502913.742,
+            "batch": 64,
+            "intensity_flop_per_byte": 63.01538461538462,
+            "measured_s": 0.0006983680129051209,
+            "median_s": 0.0007267999947071076,
+            "predicted_s": 0.0004937440622597933,
+            "ratio": 1.4144332383640101
+          },
+          {
+            "achieved_flops": 24512414344366.844,
+            "batch": 128,
+            "intensity_flop_per_byte": 124.12121212121212,
+            "measured_s": 0.0007008640170097351,
+            "median_s": 0.0007289119958877564,
+            "predicted_s": 0.0006892480254173279,
+            "ratio": 1.0168531372801162
+          },
+          {
+            "achieved_flops": 28678235468642.902,
+            "batch": 256,
+            "intensity_flop_per_byte": 240.94117647058823,
+            "measured_s": 0.0011981120109558106,
+            "median_s": 0.0012717919945716858,
+            "predicted_s": 0.0013784960508346558,
+            "ratio": 0.8691443187163098
+          },
+          {
+            "achieved_flops": 23890394939194.223,
+            "batch": 512,
+            "intensity_flop_per_byte": 455.1111111111111,
+            "measured_s": 0.002876447916030884,
+            "median_s": 0.0029752320051193238,
+            "predicted_s": 0.0027569921016693116,
+            "ratio": 1.0433283121446897
+          }
+        ]
+      },
+      "seconds": 0.4
+    },
+    "kv_transfer": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "35.52",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1590",
+        "temp_c": "47"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "68.89",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1530",
+        "temp_c": "40"
+      },
+      "result": {
+        "dtype": "bf16 (2 bytes)",
+        "link": "idle; no concurrent traffic",
+        "model": "Llama-3.1-8B",
+        "rows": [
+          {
+            "bytes": 67108864,
+            "ctx": 512,
+            "d2h_Bps": 1446548219.4016802,
+            "d2h_s": 0.04639241409301758,
+            "h2d_Bps": 1098347036.6836662,
+            "h2d_s": 0.06109987258911133
+          },
+          {
+            "bytes": 536870912,
+            "ctx": 4096,
+            "d2h_Bps": 1630087777.9286485,
+            "d2h_s": 0.3293509216308594,
+            "h2d_Bps": 1227378543.6528971,
+            "h2d_s": 0.4374126586914063
+          },
+          {
+            "bytes": 4294967296,
+            "ctx": 32768,
+            "d2h_Bps": 2116299362.0572543,
+            "d2h_s": 2.0294705810546874,
+            "h2d_Bps": 990112712.7403398,
+            "h2d_s": 4.33785693359375
+          }
+        ]
+      },
+      "seconds": 119.3
+    },
+    "peak": {
+      "gpu_after": {
+        "power_limit_w": "70.00",
+        "power_w": "69.67",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1200",
+        "temp_c": "40"
+      },
+      "gpu_before": {
+        "power_limit_w": "70.00",
+        "power_w": "41.11",
+        "sm_clock_max_mhz": "1590",
+        "sm_clock_mhz": "1575",
+        "temp_c": "36"
+      },
+      "result": {
+        "n": 8192,
+        "peak_flops": {
+          "fp16": 24925525428379.547,
+          "fp32": 4172195852511.7124
+        }
+      },
+      "seconds": 3.9
+    }
+  }
+}

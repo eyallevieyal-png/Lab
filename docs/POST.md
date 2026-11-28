@@ -1,6 +1,6 @@
 # Auditing an LLM-inference simulator: a roofline, a prefetch threshold, MoE, and 20 Lean theorems (with the limits stated)
 
-*Everything below is simulation, calculation from public specifications, or proof inside a stated model, unless marked "measured". The only measurement is on a laptop CPU. There is no GPU measurement yet, and that is the main limitation. Code, tests and Lean sources: this repository, branch `fix/simulator-validity` (merged to `main`). Full assumptions: [MODEL.md](MODEL.md).*
+*Everything below is simulation, calculation from public specifications, or proof inside a stated model, unless marked "measured". The measurements are one laptop CPU and one run on a free-tier Tesla T4 (section 3b). There is still no H100 measurement, and no MoE or contended-link measurement. Code, tests and Lean sources: this repository, branch `fix/simulator-validity` (merged to `main`). Full assumptions: [MODEL.md](MODEL.md).*
 
 ## TL;DR
 
@@ -8,6 +8,7 @@
 - From public H100 specs and Llama 3.1 configs: single-stream decode is memory-bound by 50-300x, and prefill becomes compute-bound at about 300 tokens. "Memory dominates as compute gets cheaper" holds for decode and fails for prefill, so it has to be stated per phase.
 - For prefetching an offloaded KV cache there is a closed-form accuracy threshold `p* = (u + γ) / (1 + u)` (proved in Lean 4). It matches a queueing simulation up to link utilisation of about 0.5 and breaks above that, for a reason I could identify and test.
 - For mixture-of-experts, the batch size at which decode becomes compute-bound is about (total / active parameters) times that of a dense twin: 9.9x for Qwen3-30B-A3B and 3.7x for Mixtral-8x7B under 8-position speculative verification (computed, assuming uniform routing).
+- First GPU measurement (one free-tier Tesla T4 run): the roofline predicts the compute/memory crossover within the resolution of the batch grid, is about 1.4x optimistic in the memory-bound regime, decode attention time grows in proportion to KV bytes (no amortisation across the batch) at about 40% of the measured bandwidth, and the host-device link in that environment moved KV at about 1 GB/s. One GPU, one run: the T4 is not an H100.
 - This is not a breakthrough. Several conclusions are known in the literature (section 8). What I would stand behind is the method: audit the baseline, separate proved / simulated / computed-from-specs / measured / assumed, and publish the limits.
 
 ## 1. How each claim is labelled
@@ -17,7 +18,7 @@
 | **Proved** | Lean 4 + Mathlib theorem, compiles, no `sorry`, standard axioms only. True inside the stated model. |
 | **Simulated** | Output of the simulator. Depends on my assumptions, not on hardware. |
 | **Computed from specs** | First-order roofline from vendor numbers (H100) and public model configs. An ideal bound, not a measurement. |
-| **Measured** | Actually timed. Only one: a laptop CPU, not a GPU. |
+| **Measured** | Actually timed: a laptop CPU, and one run on a Colab Tesla T4 (not an H100). |
 | **Assumed** | A chosen parameter (data size, link utilisation, routing). |
 
 ## 2. The simulator was wrong
@@ -57,6 +58,43 @@ So H6 is true in one phase and false in the other. The critical values are a clo
 - Predicted balance batch 33; first measured batch at 50% of peak: 64. So the roofline is optimistic by about 2x exactly where the crossover is.
 
 A 2026 study reports H100 at batch 1 reaching about 27% of its analytic memory floor ([arXiv 2605.30571](https://arxiv.org/pdf/2605.30571)): same direction.
+
+### 3b. Measured on a GPU (Colab Tesla T4, one run, 2026-11-28)
+
+`experiments/measure_gpu.py` (guide: [GPU_MEASUREMENT.md](GPU_MEASUREMENT.md)), data `experiments/results/measured_gpu_tesla_t4.json`, derived numbers `python -m experiments.analyze_gpu`. fp16, PyTorch 2.14.1 + CUDA 13.0, timings with CUDA events. Measured bandwidth 276 GB/s (best of copy and reduction), measured fp16 matmul 24.9 TFLOPS.
+
+`Y = W @ X`, W 8192x8192 fp16, same prediction formula as the CPU run:
+
+| B | measured / predicted | share of measured peak |
+|---|---|---|
+| 1 | 1.08 | 1% |
+| 2-64 | 1.39-1.46 | 1.5% to 49% |
+| 128 | 1.02 | 98% |
+| 256 | 0.87 | 115% |
+| 512 | 1.04 | 96% |
+
+- B = 1 reads the weights at 92% of the measured bandwidth. For B = 2..64 the time is flat at about 0.69 ms, so the batch-independent weight read dominates, as the model says, but at about 192 GB/s (70% of the streaming-reduction bandwidth): the matrix-matrix kernel does not stream as fast as the reduction, so the model is about 1.4x optimistic in the memory-bound regime. Same direction as the CPU result, milder.
+- Crossover: predicted B* = 92; the first measured batch at 50% of peak is 128 (on this grid, 64 reaches 49% and 128 reaches 98%). Plugging the GEMM's own effective bandwidth (192 GB/s) into the same formula gives B* of about 134. That second number is a fit after the fact using the same data, not a prediction.
+- The measured "peak" is not a ceiling: B = 256 reached 115% of it. Peak matmul 24.9 TFLOPS is well below the T4's printed tensor-core figure (about 65 TFLOPS as I recall, not verified here), the card runs at its 70 W limit, and the SM clock moved between 825 and 1590 MHz at the section boundaries (clocks were not sampled during the kernels). The measured peak also depends on the matrix shape (see the second run below), so every ratio near the peak is uncertain by tens of percent, and the 0.87 to 1.04 values at B >= 128 should be read as "close to the peak", nothing finer.
+- Second, smaller run (`--quick`, 4096x4096 weights, 5 repeats, same Colab T4, about 80 seconds earlier; `measured_gpu_tesla_t4_quick.json`): a different size, not an exact replicate. The memory-bound ratios agree in direction and size (B = 1: 1.06; B = 8: 1.39; B = 64: 1.60), decode attention reaches 37-41% of the bandwidth at KV >= 32 MiB (2.4-2.7x the floor), and host-to-device transfer of 64 MiB again ran at 1.05 GB/s. The measured peak moved from 24.9 TFLOPS (8192 matrices) to 21.9 TFLOPS (4096 square), while a 4096x4096 by 4096x512 product reached 37.3 TFLOPS, 1.7 times the square-matrix peak of that run. So the square-matmul "peak" underestimates what the card can do on tall products, and the B = 512 ratio of 0.59 in that run is an artifact of the peak definition, not a model failure.
+
+Decode attention (one query token, Llama 3.1 8B shape: 32 query heads, 8 KV heads, d = 128, fp16 KV; PyTorch `scaled_dot_product_attention`, kernel not controlled; PyTorch's flash backend needs a newer GPU architecture than the T4's, as I recall, so a fallback kernel ran):
+
+- For KV above 256 MiB the kernel reaches 36-42% of the measured bandwidth (measured/floor 2.4-2.7).
+- Time per KV byte is nearly flat from batch 4 to the largest batch (ratio of last to first 0.91 at context 4096 and 0.98 at 16384): attention time grows in proportion to the KV bytes read, with no amortisation across the batch. This agrees with the literature claim in section 8 and with the Lean statement `no_balance_point` as an observation on this GPU; at context 512 the kernel is still latency-limited (0.63) and the test says nothing there.
+- What this does not show: whether the 40% is memory inefficiency of this kernel or something else. By my estimate the intensity of this kernel is a few FLOP/byte against a T4 ridge of about 90, so compute is not the limiter, but I did not profile it.
+
+KV transfer, pinned host memory, one Llama 3.1 8B sequence in bf16, idle link:
+
+| context | size | host to device | device to host |
+|---|---|---|---|
+| 512 | 64 MiB | 61 ms (1.1 GB/s) | 46 ms (1.4 GB/s) |
+| 4096 | 512 MiB | 437 ms (1.2 GB/s) | 329 ms (1.6 GB/s) |
+| 32768 | 4 GiB | 4.34 s (1.0 GB/s) | 2.03 s (2.1 GB/s) |
+
+- This is far below what a PCIe Gen3 x16 link should deliver (roughly 12 GB/s as I recall; not verified here), so it is probably a property of this virtualised Colab host rather than of the T4. It is evidence that the link speed has to be measured in the deployment, not read from a datasheet, and not a measurement of a typical server.
+- An 8B bf16 model does not fit in a T4's memory, so the decode step is extrapolated: 16 GB at the measured B = 1 weight-read rate is about 63 ms. On that extrapolation a fetch takes 1.0 / 6.9 / 69 decode steps at context 512 / 4096 / 32768, against 0.22 / 1.7 / 11 computed from H100 specs in section 4. The direction (a fetch costs many steps at long context) is the same; the magnitude here is dominated by the slow link.
+- The H13 model's link utilisation `u` (contention) was not measured: the link was idle.
 
 ## 4. H13: when is prefetching an offloaded KV cache worth it?
 
@@ -132,8 +170,9 @@ These are proofs about the model, not about hardware.
 
 ## 7. Limitations (please read)
 
-- No GPU measurements. All H100 numbers are first-order bounds from specs: no overlap, no kernel inefficiency, no inter-GPU communication; 70B rows assume a single device it does not fit on.
-- The one measurement (CPU) shows the roofline is about 2x optimistic at the crossover.
+- No H100 measurements. All H100 numbers are first-order bounds from specs: no overlap, no kernel inefficiency, no inter-GPU communication; 70B rows assume a single device it does not fit on.
+- The GPU measurement is one full run plus one smaller run (different sizes) on the same Colab T4 session: no independent repetition across sessions or cards, clocks and power varied, the peak depends on matrix shape, the attention kernel was not controlled or profiled, the transfer result is probably specific to that virtualised host, and the decode-step figure in section 3b is an extrapolation.
+- The CPU measurement shows the roofline about 2x optimistic at the crossover; on the T4 it is about 1.4x optimistic in the memory-bound regime and right at the crossover once the GEMM bandwidth is used (a post-hoc fit).
 - AMD MI300X, CXL and NVMe figures were not collected (sources not available).
 - The queueing results assume Poisson background and deterministic service; the BurstGPT test has arrival times only.
 - The MoE results assume uniform independent routing.
@@ -151,14 +190,14 @@ Search of 2026-11-26, from summaries; the papers were not read in full and the s
 
 ## 9. Next step and how to help
 
-The largest gap is a GPU measurement: step time versus batch and context (including MoE with speculative verification), and KV transfer time over the link. If you have access to a GPU, or know of real serving traces with KV-reuse information, I would like to hear from you. Corrections to any claim above are welcome as issues.
+The largest remaining gap is a measurement on a data-center GPU (an H100 or similar) with a profiled attention kernel, MoE with speculative verification, and KV transfer over a contended link; the T4 run in section 3b covers only the dense roofline, one attention kernel and an idle link. If you have access to such a GPU, or know of real serving traces with KV-reuse information, I would like to hear from you. The script is `experiments/measure_gpu.py` and takes about ten minutes. Corrections to any claim above are welcome as issues.
 
 ## 10. Reproduce
 
 ```
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt     # pytest
-.venv/Scripts/python -m pytest -q                            # 73 tests
+.venv/Scripts/python -m pytest -q                            # 82 tests
 .venv/Scripts/python experiments/h6_sensitivity.py           # H6 in the simulator
 .venv/Scripts/python experiments/h6_calibrated.py            # H6 from specs
 .venv/Scripts/python experiments/h6_moe.py                   # MoE extension
@@ -167,4 +206,4 @@ python -m venv .venv
 cd formal && lake exe cache get && lake build                # Lean (several GB of disk)
 ```
 
-`experiments/measure_roofline.py` needs `requirements-bench.txt` (numpy). On Linux or macOS use `.venv/bin/python`.
+`experiments/measure_roofline.py` needs `requirements-bench.txt` (numpy). `experiments/measure_gpu.py` needs PyTorch with CUDA (see GPU_MEASUREMENT.md); `python -m experiments.analyze_gpu` reproduces the derived numbers from the committed JSON. On Linux or macOS use `.venv/bin/python`.
