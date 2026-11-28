@@ -1,0 +1,104 @@
+{
+ "experiment": "H17 gate diagnosis",
+ "evidence_class": "simulated",
+ "scenario": "agentic_loop",
+ "background": {
+  "DRAM": 0.5
+ },
+ "seeds": [
+  100,
+  101,
+  102,
+  103,
+  104,
+  105,
+  106,
+  107,
+  108,
+  109,
+  110,
+  111,
+  112,
+  113,
+  114,
+  115,
+  116,
+  117,
+  118,
+  119
+ ],
+ "variants": {
+  "lru_demand": {
+   "p99_ms": 76.90140605953403,
+   "p99_ci95": 8.276858479193203,
+   "mean_latency_ms": 24.0350900412839,
+   "prefetches_issued": 0.0,
+   "wasted_prefetch_gib": 0.0,
+   "p99_minus_always_prefetch_ms": 50.029564617272555,
+   "p99_minus_always_ci95": 6.577613241383358
+  },
+  "always_prefetch": {
+   "p99_ms": 26.871841442261463,
+   "p99_ci95": 5.4483951170205485,
+   "mean_latency_ms": 7.9322906126087105,
+   "prefetches_issued": 1352.55,
+   "wasted_prefetch_gib": 46.7625,
+   "p99_minus_always_prefetch_ms": 0.0,
+   "p99_minus_always_ci95": 0.0
+  },
+  "static_threshold": {
+   "p99_ms": 26.517887698226037,
+   "p99_ci95": 5.993281620805289,
+   "mean_latency_ms": 7.9005714895322114,
+   "prefetches_issued": 1314.75,
+   "wasted_prefetch_gib": 43.9375,
+   "p99_minus_always_prefetch_ms": -0.3539537440354252,
+   "p99_minus_always_ci95": 1.0111933578649355
+  },
+  "adaptive_gate": {
+   "p99_ms": 43.530571683314975,
+   "p99_ci95": 6.458636390239722,
+   "mean_latency_ms": 10.247631253705508,
+   "prefetches_issued": 1015.0,
+   "wasted_prefetch_gib": 33.175,
+   "p99_minus_always_prefetch_ms": 16.65873024105351,
+   "p99_minus_always_ci95": 3.873442775172738
+  },
+  "gate_true_u": {
+   "p99_ms": 37.80652171787941,
+   "p99_ci95": 5.641677541998396,
+   "mean_latency_ms": 9.270739431278841,
+   "prefetches_issued": 1142.15,
+   "wasted_prefetch_gib": 37.2625,
+   "p99_minus_always_prefetch_ms": 10.93468027561795,
+   "p99_minus_always_ci95": 3.9235280929421537
+  },
+  "gate_u_zero": {
+   "p99_ms": 36.23604309717324,
+   "p99_ci95": 6.355386875092064,
+   "mean_latency_ms": 8.983381693801409,
+   "prefetches_issued": 1198.3,
+   "wasted_prefetch_gib": 40.0125,
+   "p99_minus_always_prefetch_ms": 9.364201654911778,
+   "p99_minus_always_ci95": 2.284903634979344
+  },
+  "gate_no_queue_check": {
+   "p99_ms": 39.23011772331823,
+   "p99_ci95": 6.5478403649349755,
+   "mean_latency_ms": 9.697934466157939,
+   "prefetches_issued": 1071.8,
+   "wasted_prefetch_gib": 35.225,
+   "p99_minus_always_prefetch_ms": 12.35827628105677,
+   "p99_minus_always_ci95": 3.784014000384722
+  },
+  "gate_no_margin": {
+   "p99_ms": 40.399162614966755,
+   "p99_ci95": 6.133564138199428,
+   "mean_latency_ms": 9.936127583959514,
+   "prefetches_issued": 1046.25,
+   "wasted_prefetch_gib": 34.2625,
+   "p99_minus_always_prefetch_ms": 13.527321172705296,
+   "p99_minus_always_ci95": 3.0475029730716456
+  }
+ }
+}
